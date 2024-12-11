@@ -1,0 +1,114 @@
+networks:
+  backend:
+    external: true
+  
+  frontend:
+    external: true
+    
+services:
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2024.10.4
+    container_name: authentik-server
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: "${POSTGRES_USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${POSTGRES_DB:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${POSTGRES_PASSWORD:?error}"
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY:?error}"
+      TZ: "${TZ:-UTC}"
+    volumes:
+      - ../.data/authentik/media:/media
+      - ../.data/authentik/custom-templates:/templates
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      # Routers
+      - "traefik.http.routers.authentik-ui.rule=Host(`authentik.sinlessgamesllc.com`)"
+      - "traefik.http.routers.authentik-ui.entrypoints=websecure"
+      - "traefik.http.routers.authentik-ui.tls=true"
+      - "traefik.http.routers.authentik-ui.tls.certresolver=cloudflare"
+      - "traefik.http.routers.authentik-ui.middlewares=authentik-auth@file"
+      # Services
+      - "traefik.http.services.authentik-ui.loadbalancer.server.port=9000"
+      - "traefik.http.services.authentik-ui.loadbalancer.server.url=http://authentik-server:9000/outpost.goauthentik.io"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2024.10.4
+    container_name: authentik-worker
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: "${POSTGRES_USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${POSTGRES_DB:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${POSTGRES_PASSWORD:?error}"
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY:?error}"
+      TZ: "${TZ:-UTC}"
+    volumes:
+      - ../.data/authentik/media:/media
+      - ../.data/authentik/certs:/certs
+      - ../.data/authentik/custom-templates:/templates
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+
+  postgres:
+    image: postgres:16.6
+    container_name: authentik-db
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-authentik}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?error}"
+      POSTGRES_DB: "${POSTGRES_DB:-authentik}"
+      TZ: "${TZ:-UTC}"
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "${POSTGRES_USER:-authentik}"']
+      start_period: 30s
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:rw
+    restart: unless-stopped
+    networks:
+      - backend
+
+  redis:
+    image: redis:7.4.1
+    container_name: authentik-redis
+    command: --save 60 1 --loglevel warning
+    environment:
+      TZ: "${TZ:-UTC}"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ../.data/redis:/data
+    restart: unless-stopped
+    networks:
+      - backend
