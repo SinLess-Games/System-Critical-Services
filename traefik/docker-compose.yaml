@@ -1,0 +1,66 @@
+services:
+  traefik:
+    image: traefik:v3.2.2
+    container_name: traefik
+    restart: always
+    labels:
+      # Traefik
+      # Global settings
+      - traefik.global.checkNewVersion=true
+      - traefik.global.sendAnonymousUsage=true
+      - "traefik.enable=true"
+      # Dashboard router
+      - "traefik.http.routers.traefik-scs-dashboard.rule=Host(`traefik-system-critical.sinlessgamesllc.com`)"
+      - "traefik.http.routers.traefik-scs-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-scs-dashboard.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-scs-dashboard.middlewares=authentik-auth@file"
+      - "traefik.http.services.traefik-scs-dashboard.loadbalancer.server.port=8080"
+      # Traefik logging
+      - "traefik.log.level=DEBUG"
+      - "traefik.log.filePath=/data/traefik.log"
+      - "traefik.accessLog.filePath=/data/access.log"
+      - "traefik.accessLog.bufferingSize=100"
+      # Providers
+      - "traefik.providers.swarm=true"
+      - "traefik.providers.swarm.exposedByDefault=false"
+      - "traefik.providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "traefik.providers.swarm.watch=true"
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../.data/traefik:/data
+    environment:
+      CF_API_EMAIL: "${CF_API_EMAIL}"
+      CF_DNS_API_TOKEN: "${CF_DNS_API_TOKEN}"
+      TZ: "${TZ:-UTC}"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+        limits:
+          cpus: "0.50"
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+
+networks:
+  backend:
+    external: true
+  
+  frontend:
+    external: true
