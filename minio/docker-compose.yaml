@@ -1,5 +1,5 @@
 services:
-  # Distrubuted storage
+  # Distributed storage
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.minio-http.middlewares=redirect-to-https"
       - "traefik.http.routers.minio-http.service=minio"
       - "traefik.http.routers.minio-http.priority=1"
-
+      
       - "traefik.http.routers.minio-https.rule=Host(`minio.${DOMAIN}`)"
       - "traefik.http.routers.minio-https.entrypoints=https"
       - "traefik.http.routers.minio-https.tls=true"
