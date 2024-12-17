@@ -4,37 +4,29 @@ services:
     container_name: cloudflared
     restart: always
     networks:
+      - frontend
       - backend
-    volumes:
-      - ./config:/etc/cloudflared:ro
     command: >
-      tunnel run 92bf2c0e-68da-421d-8fbd-efcce8b60320
+      tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     environment:
       TZ: "${TZ:-UTC}"
+      CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+      DOMAIN: ${DOMAIN}
+      LOCAL_DOMAIN: ${LOCAL_DOMAIN}
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - "traefik.enable=false"
       resources:
         reservations:
           cpus: '0.10'
-          memory: 128M
+          memory: 2048M
         limits:
           cpus: '0.25'
-          memory: 256M
+          memory: 2048M
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s
-
-
-networks:
-  backend:
-    external: true
-  
-  frontend:
-    external: true
