@@ -1,90 +1,81 @@
 services:
   traefik:
-    image: traefik:v3.2.2
-    container_name: traefik
-    restart: always
-    privileged: true
+    image: traefik:v3.2.2                # Use Traefik version 3.2.2
+    container_name: traefik             # Name the container 'traefik'
+    restart: always                     # Restart on failure or crash
+    privileged: true                    # Allow privileged mode (required for some features)
     security_opt:
-      - no-new-privileges=true
+      - no-new-privileges=true          # Prevent privilege escalation
     depends_on:
-      cloudflared:
+      cloudflared:                      # Ensure cloudflared starts before Traefik
         condition: service_started
-      # authentik-server:
-      #   condition: service_started
     ports:
-      - 443:443
-      - 80:80
-      - 8080:8080
+      - 443:443                         # HTTPS
+      - 80:80                           # HTTP
+      - 8080:8080                       # Traefik Dashboard (optional)
     networks:
-      frontend: 
+      frontend:                         # Connect to frontend network
         aliases:
           - traefik-scs-dashboard.${LOCAL_DOMAIN}
           - traefik-scs-dashboard.${DOMAIN}
-      backend:
+      backend:                          # Connect to backend network
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /run/docker.sock:/run/docker.sock:ro
-      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
-      - ./.data/logs:/var/traefik/logs:rw
-      - ./.data/certs/:/var/traefik/certs/:rw
-      - ./config/conf.d:/rules
+      - /etc/localtime:/etc/localtime:ro       # Synchronize container time
+      - /run/docker.sock:/run/docker.sock:ro   # Access Docker socket for dynamic routing
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro  # Traefik static config
+      - ./.data/logs:/var/traefik/logs:rw      # Persistent logs
+      - ./.data/certs/:/var/traefik/certs/:rw  # Persistent certs
+      - ./config/conf.d:/rules                 # Custom routing rules
     labels:
-      # Global Labels
+      # Enable Traefik
       - "traefik.enable=true"
-      # Local domain Labels
+
+      # Local domain routing (HTTP -> HTTPS redirection)
       - "traefik.http.routers.traefik-scs-dashboard_local-http.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
       - "traefik.http.routers.traefik-scs-dashboard_local-http.entrypoints=http"
       - "traefik.http.routers.traefik-scs-dashboard_local-http.middlewares=redirect-to-https"
       - "traefik.http.routers.traefik-scs-dashboard_local-http.service=dashboard@internal"
-      - "traefik.http.routers.traefik-scs-dashboard_local-http.priority=1"
+
       - "traefik.http.routers.traefik-scs-dashboard_local-https.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
       - "traefik.http.routers.traefik-scs-dashboard_local-https.entrypoints=https"
       - "traefik.http.routers.traefik-scs-dashboard_local-https.tls=true"
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.service=dashboard@internal"
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.priority=1"
       - "traefik.http.routers.traefik-scs-dashboard_local-https.tls.certresolver=cloudflare"
-      # Authentik middleware
-      #- "traefik.http.routers.traefik-scs-dashboard_local-https.middlewares=authentik-auth@file"
-      # Domain Labels
+
+      # Domain routing
       - "traefik.http.routers.traefik-scs-dashboard_domain-http.rule=Host(`traefik-scs-dashboard.${DOMAIN}`)"
       - "traefik.http.routers.traefik-scs-dashboard_domain-http.entrypoints=http"
       - "traefik.http.routers.traefik-scs-dashboard_domain-http.middlewares=redirect-to-https"
-      - "traefik.http.routers.traefik-scs-dashboard_domain-http.service=dashboard@internal"
-      - "traefik.http.routers.traefik-scs-dashboard_domain-http.priority=1"
+
       - "traefik.http.routers.traefik-scs-dashboard_domain-https.rule=Host(`traefik-scs-dashboard.${DOMAIN}`)"
       - "traefik.http.routers.traefik-scs-dashboard_domain-https.entrypoints=https"
       - "traefik.http.routers.traefik-scs-dashboard_domain-https.tls=true"
-      - "traefik.http.routers.traefik-scs-dashboard_domain-https.service=dashboard@internal"
-      - "traefik.http.routers.traefik-scs-dashboard_domain-https.priority=1"
       - "traefik.http.routers.traefik-scs-dashboard_domain-https.tls.certresolver=cloudflare"
-      # Authentik middleware
-      #- "traefik.http.routers.traefik-scs-dashboard_domain-https.middlewares=authentik-auth@file"
-      # Middlewares
+
+      # HTTPS Redirect Middleware
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-      # watchtower labels
+
+      # Watchtower support
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
-      CF_API_EMAIL: "${CF_API_EMAIL}"
-      CF_DNS_API_TOKEN: "${CF_DNS_API_TOKEN}"
-      TZ: "${TZ:-UTC}"
-      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
-      DOMAIN: ${DOMAIN}
-      LOCAL_DOMAIN: ${LOCAL_DOMAIN}
+      CF_API_EMAIL: "${CF_API_EMAIL}"                # Cloudflare API Email
+      CF_DNS_API_TOKEN: "${CF_DNS_API_TOKEN}"        # Cloudflare DNS API Token
+      TZ: "${TZ:-UTC}"                               # Timezone
+      DOMAIN: ${DOMAIN}                              # Production domain
+      LOCAL_DOMAIN: ${LOCAL_DOMAIN}                  # Local development domain
     deploy:
-      replicas: 1
+      replicas: 1                                    # Single replica
       placement:
         constraints:
-          - node.role == manager
+          - node.role == manager                     # Run only on manager nodes
       resources:
         reservations:
-          cpus: "0.25"
-          memory: 256M
+          cpus: "0.25"                               # Reserve 0.25 CPU
+          memory: 256M                               # Reserve 256MB memory
         limits:
-          cpus: "0.50"
-          memory: 512M
+          cpus: "0.50"                               # Limit to 0.5 CPU
+          memory: 512M                               # Limit to 512MB memory
       restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-     
+        condition: on-failure                        # Restart on failure
+        delay: 5s                                    # Wait 5 seconds before restarting
+        max_attempts: 3                              # Retry up to 3 times
