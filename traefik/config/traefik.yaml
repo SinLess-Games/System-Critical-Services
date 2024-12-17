@@ -28,13 +28,12 @@ entryPoints:
           - main: "local.sinlessgamesllc.com"
             sans:
               - "*.local.sinlessgamesllc.com"
-
           - main: "sinlessgamesllc.com"
             sans:
               - "*.sinlessgamesllc.com"
     forwardedHeaders:
       trustedIPs:
-        # Cloudflare (https://www.cloudflare.com/ips-v4)
+        # Cloudflare IPs (https://www.cloudflare.com/ips-v4)
         - "173.245.48.0/20"
         - "103.21.244.0/22"
         - "103.22.200.0/22"
@@ -55,25 +54,25 @@ entryPoints:
         - "10.0.0.0/8"
         - "192.168.0.0/16"
         - "172.16.0.0/12"
-        - 192.168.86.0/24
+        - "192.168.86.0/24"
 
 ################################################################
 # Logs - https://doc.traefik.io/traefik/observability/logs/
 ################################################################
 log:
-  level: ERROR # Options: DEBUG, PANIC, FATAL, ERROR (Default), WARN, and INFO
-  filePath: /var/traefik/logs/traefik-container.log # Default is to STDOUT
+  level: DEBUG # Options: DEBUG, PANIC, FATAL, ERROR (Default), WARN, and INFO
+  filePath: /var/traefik/logs/traefik-container.log
   # format: json # Uses text format (common) by default
 
 ################################################################
 # Access logs - https://doc.traefik.io/traefik/observability/access-logs/
 ################################################################
 accessLog:
-  filePath: /var/traefik/logs/traefik-access.log # In the Common Log Format (CLF) by default
+  filePath: /var/traefik/logs/traefik-access.log
   bufferingSize: 100 # Number of log lines
   fields:
     names:
-      StartUTC: drop  # Write logs in Container Local Time instead of UTC
+      StartUTC: drop # Write logs in Container Local Time instead of UTC
   filters:
     statusCodes:
       - "204-299"
@@ -100,9 +99,10 @@ providers:
   file:
     directory: /rules
     watch: true
-  redis:
-    endpoints:
-      - redis:6379
+  # Uncomment this if Redis provider is in use
+  # redis:
+  #   endpoints:
+  #     - redis:6379
 
 ################################################################
 # Let's Encrypt (ACME)
@@ -110,12 +110,12 @@ providers:
 certificatesResolvers:
   cloudflare:
     acme:
-      email: disdainful777@gmail.com # Make sure to change this to you floudflare email
+      email: disdainful777@gmail.com # Replace with your Cloudflare email
       storage: /var/traefik/certs/cf-acme.json
-      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      # caServer: "https://acme-v02.api.letsencrypt.org/directory" # Production Let's Encrypt server
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory" # Staging Let's Encrypt server
       dnsChallenge:
         provider: cloudflare
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
-
