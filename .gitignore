@@ -4,3 +4,5 @@ _data/
 
 cloudflared/config/cert.pem
 cloudflared/config/credentials.json
+*.log
+traefik/certs/cf-acme.json
