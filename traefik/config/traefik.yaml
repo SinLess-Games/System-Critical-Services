@@ -99,10 +99,9 @@ providers:
   file:
     directory: /rules
     watch: true
-  # Uncomment this if Redis provider is in use
-  # redis:
-  #   endpoints:
-  #     - redis:6379
+  redis:
+    endpoints:
+      - redis:6379
 
 ################################################################
 # Let's Encrypt (ACME)
