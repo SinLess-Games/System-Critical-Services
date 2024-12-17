@@ -25,8 +25,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/docker.sock:/run/docker.sock:ro
       - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
-      - ./logs:/var/traefik/logs:rw
-      - ./certs/:/var/traefik/certs/:rw
+      - ./.data/logs:/var/traefik/logs:rw
+      - ./.data/certs/:/var/traefik/certs/:rw
       - ./config/conf.d:/rules
     labels:
       # Global Labels
