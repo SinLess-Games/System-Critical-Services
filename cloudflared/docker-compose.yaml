@@ -1,4 +1,4 @@
-services: 
+services:
   cloudflared:
     image: cloudflare/cloudflared:2024.2.1
     container_name: cloudflared
@@ -11,8 +11,6 @@ services:
     environment:
       TZ: "${TZ:-UTC}"
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-      DOMAIN: ${DOMAIN}
-      LOCAL_DOMAIN: ${LOCAL_DOMAIN}
     deploy:
       replicas: 1
       placement:
