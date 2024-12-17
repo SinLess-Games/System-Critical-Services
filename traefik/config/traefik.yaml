@@ -60,7 +60,7 @@ entryPoints:
 # Logs - https://doc.traefik.io/traefik/observability/logs/
 ################################################################
 log:
-  level: Warn # Options: DEBUG, PANIC, FATAL, ERROR (Default), WARN, and INFO
+  level: INFO # Options: DEBUG, PANIC, FATAL, ERROR (Default), WARN, and INFO
   filePath: /var/traefik/logs/traefik-container.log
   # format: json # Uses text format (common) by default
 
@@ -115,6 +115,7 @@ certificatesResolvers:
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory" # Staging Let's Encrypt server
       dnsChallenge:
         provider: cloudflare
+        delayBeforeCheck: 10s
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
