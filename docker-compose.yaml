@@ -1,41 +1,39 @@
+# Name of the Docker Compose project, which defines system-critical services.
 name: System-Critical-Services
 
+# Define persistent volumes for services that require data storage.
 volumes:
-  postgres_data:
-    driver: local
+  postgres_data:                                  # Volume for PostgreSQL database storage
+    driver: local                                 # Use the local driver to store data on the host machine's filesystem
   
-  redis_data:
-    driver: local
+  redis_data:                                     # Volume for Redis data persistence
+    driver: local                                 # Local storage ensures Redis can recover data across container restarts
   
-  minio_data:
-    driver: local
+  minio_data:                                     # Volume for MinIO object storage
+    driver: local                                 # MinIO will use this volume to persist objects like files, backups, or logs
 
+# Define Docker networks to segment and manage communication between services.
 networks:
-  backend:
-    name: backend
-    driver: overlay
-    attachable: true
+  backend:                                        # Backend network for inter-service communication (e.g., databases, APIs)
+    name: backend                                 # Custom network name for clarity
+    driver: overlay                               # Overlay network spans multiple Docker nodes in a swarm
+    attachable: true                              # Allows standalone containers to connect to this network
   
-  frontend:
-    name: frontend
-    driver: overlay
-    attachable: true
+  frontend:                                       # Frontend network for user-facing services (e.g., web interfaces)
+    name: frontend                                # Custom name for the frontend network
+    driver: overlay                               # Overlay network enables scalability and multi-node communication
+    attachable: true                              # Allows additional containers to attach dynamically
   
-  unifi-network:
-    name: unifi-network
-    driver: bridge
+  unifi-network:                                  # Dedicated network for UniFi services (e.g., network management tools)
+    name: unifi-network                           # Custom bridge network name
+    driver: bridge                                # Bridge network connects containers on the same host
 
+# Include additional service definitions from other Docker Compose files.
 include:
-  - ./traefik/docker-compose.yaml
-  - ./cloudflared/docker-compose.yaml
-  - ./authentik/docker-compose.yaml
-  - ./minio/docker-compose.yaml
-  - ./watchtower/docker-compose.yaml
-  # - ./sinlessgamesllc/docker-compose.yaml
-  # - ./homepage/docker-compose.yaml
-
-  
-
-  
-
-
+  - ./traefik/docker-compose.yaml                 # Traefik reverse proxy for managing external and internal traffic
+  - ./cloudflared/docker-compose.yaml             # Cloudflare Tunnel for secure remote access to internal services
+  - ./authentik/docker-compose.yaml               # Authentik for Single Sign-On (SSO) and authentication management
+  - ./minio/docker-compose.yaml                   # MinIO service for S3-compatible object storage
+  - ./watchtower/docker-compose.yaml              # Watchtower for automated updates of Docker containers
+  # - ./sinlessgamesllc/docker-compose.yaml         # Placeholder for custom application services
+  # - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
