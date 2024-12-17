@@ -1,13 +1,6 @@
-networks:
-  backend:
-    external: true
-  
-  frontend:
-    external: true
-    
 services:
   authentik-server:
-    image: ghcr.io/goauthentik/server:2024.10.4
+    image: ghcr.io/goauthentik/server:2024.10.5
     container_name: authentik-server
     command: server
     environment:
@@ -18,40 +11,66 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: "${POSTGRES_PASSWORD:?error}"
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY:?error}"
       TZ: "${TZ:-UTC}"
+      AUTHENTIK_COOKIE_DOMAIN: '${AUTHENTIK_COOKIE_DOMAIN}'
+      AUTHENTIK_ERROR_REPORTING__ENABLED: '${AUTHENTIK_ERROR_REPORTING__ENABLED}'
+      AUTHENTIK_EMAIL__HOST: '${AUTHENTIK_EMAIL__HOST}'
+      AUTHENTIK_EMAIL__PORT: '${AUTHENTIK_EMAIL__PORT}'
+      AUTHENTIK_EMAIL__USERNAME: 'file:///run/secrets/smtp_user'
+      AUTHENTIK_EMAIL__PASSWORD: 'file:///run/secrets/smtp_password'
+      AUTHENTIK_EMAIL__USE_TLS: '${AUTHENTIK_EMAIL__USE_TLS}'
+      AUTHENTIK_EMAIL__USE_SSL: '${AUTHENTIK_EMAIL__USE_SSL}'
+      AUTHENTIK_EMAIL__TIMEOUT: '${AUTHENTIK_EMAIL__TIMEOUT}'
+      AUTHENTIK_EMAIL__FROM: '${AUTHENTIK_EMAIL__FROM}'
+      AUTHENTIK_LOG_LEVEL: '${AUTHENTIK_LOG_LEVEL}'
+      AUTHENTIK_GDPR_COMPLIANCE: 'true'
+      DOMAIN: '${DOMAIN}'
     volumes:
-      - ../.data/authentik/media:/media
-      - ../.data/authentik/custom-templates:/templates
+      - ./media:/media
+      - ./custom-templates:/templates
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      authentik-worker:
+        condition: service_started
     restart: unless-stopped
-    ports:
-      - 9000:9000
     networks:
       - frontend
       - backend
     labels:
-      - "traefik.enable=true"
-      # Routers
-      - "traefik.http.routers.authentik-ui.rule=Host(`authentik.sinlessgamesllc.com`)"
-      - "traefik.http.routers.authentik-ui.entrypoints=websecure"
-      - "traefik.http.routers.authentik-ui.tls=true"
-      - "traefik.http.routers.authentik-ui.tls.certresolver=cloudflare"
-      - "traefik.http.routers.authentik-ui.middlewares=authentik-auth@file"
+      - traefik.enable=true
+      # http
+      - "traefik.http.routers.authentik-server-rtr.rule=Host(`authentik.${DOMAIN}`)"
+      - "traefik.http.routers.authentik-server-rtr.entrypoints=https"
+      - "traefik.http.routers.authentik-server-rtr.tls=true"
+      # https:
+      - "traefik.http.routers.authentik-server-rtr-https.rule=Host(`authentik.${DOMAIN}`)"
+      - "traefik.http.routers.authentik-server-rtr-https.entrypoints=https"
+      - "traefik.http.routers.authentik-server-rtr-https.tls=true"
       # Services
-      - "traefik.http.services.authentik-ui.loadbalancer.server.port=9000"
-      - "traefik.http.services.authentik-ui.loadbalancer.server.url=http://authentik-server:9000/outpost.goauthentik.io"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - traefik.http.services.authentik-server.loadbalancer.server.port=9000
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
+
+
+  authentik-proxy:
+    image: ghcr.io/goauthentik/proxy
+    container_name: sinlessgamesllc-authentik-proxy
+    networks:
+      - frontend
+      - backend
+    environment:
+      AUTHENTIK_HOST: https://authentik.${DOMAIN}
+      AUTHENTIK_INSECURE: "false"
+      AUTHENTIK_TOKEN: ${AUTHENTIK_SINLESS_OPUTPOST_TOKEN}
+      DOMAIN: ${DOMAIN}
+    labels:
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
 
   authentik-worker:
-    image: ghcr.io/goauthentik/server:2024.10.4
-    container_name: authentik-worker
+    image: ghcr.io/goauthentik/server:2024.10.5
     command: worker
     environment:
       AUTHENTIK_REDIS__HOST: authentik-redis
@@ -61,10 +80,22 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: "${POSTGRES_PASSWORD:?error}"
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY:?error}"
       TZ: "${TZ:-UTC}"
+      AUTHENTIK_COOKIE_DOMAIN: '${AUTHENTIK_COOKIE_DOMAIN}'
+      AUTHENTIK_ERROR_REPORTING__ENABLED: '${AUTHENTIK_ERROR_REPORTING__ENABLED}'
+      AUTHENTIK_EMAIL__HOST: '${AUTHENTIK_EMAIL__HOST}'
+      AUTHENTIK_EMAIL__PORT: '${AUTHENTIK_EMAIL__PORT}'
+      AUTHENTIK_EMAIL__USERNAME: 'file:///run/secrets/smtp_user'
+      AUTHENTIK_EMAIL__PASSWORD: 'file:///run/secrets/smtp_password'
+      AUTHENTIK_EMAIL__USE_TLS: '${AUTHENTIK_EMAIL__USE_TLS}'
+      AUTHENTIK_EMAIL__USE_SSL: '${AUTHENTIK_EMAIL__USE_SSL}'
+      AUTHENTIK_EMAIL__TIMEOUT: '${AUTHENTIK_EMAIL__TIMEOUT}'
+      AUTHENTIK_EMAIL__FROM: '${AUTHENTIK_EMAIL__FROM}'
+      AUTHENTIK_LOG_LEVEL: '${AUTHENTIK_LOG_LEVEL}'
+      AUTHENTIK_GDPR_COMPLIANCE: 'true'
     volumes:
-      - ../.data/authentik/media:/media
-      - ../.data/authentik/certs:/certs
-      - ../.data/authentik/custom-templates:/templates
+      - ./media:/media
+      - ./certs:/certs
+      - ./custom-templates:/templates
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,6 +105,11 @@ services:
     networks:
       - frontend
       - backend
+    deploy:
+      replicas: 1
+    labels:
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
 
   postgres:
     image: postgres:16.6
@@ -94,6 +130,9 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    labels:
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
 
   redis:
     image: redis:7.4.1
@@ -108,7 +147,10 @@ services:
       retries: 5
       timeout: 3s
     volumes:
-      - ../.data/redis:/data
+      - redis_data:/data
     restart: unless-stopped
     networks:
       - backend
+    labels:
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
