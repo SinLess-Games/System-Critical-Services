@@ -1,0 +1,40 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings
+
+# providers:
+#   openweathermap: openweathermapapikey
+#   weatherapi: weatherapiapikey
+title: SinLess Games Homepage
+
+background: 
+  image: https://img.freepik.com/free-photo/anime-moon-landscape_23-2151645903.jpg
+  # blur: sm # sm, "", md, xl... see https://tailwindcss.com/docs/backdrop-blur
+  saturate: 50 # 0, 50, 100... see https://tailwindcss.com/docs/backdrop-saturate
+  brightness: 50 # 0, 50, 75... see https://tailwindcss.com/docs/backdrop-brightness
+  opacity: 100 # 0-100
+
+cardBlur: sm # sm, "", md, xl... see https://tailwindcss.com/docs/backdrop-blur
+
+headerStyle: boxed
+
+layout:
+  Monitoring:
+    icon: mdi-code-brackets
+    style: row
+    columns: 4
+
+  Networking:
+    icon: mdi-network
+  
+  Infrastructure:
+    icon: sh-Terraform
+  
+  # Development:
+  #   icon: fas fa-code
+
+  # Security:
+  #   icon: fas fa-shield-alt
+
+  # Automation:
+  #   icon: fas fa-robot

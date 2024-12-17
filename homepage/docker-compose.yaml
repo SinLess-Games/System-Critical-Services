@@ -1,0 +1,31 @@
+---
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v0.9.13
+    # container_name: homepage
+    # hostname: homepage
+    environment:
+      - LOG_LEVEL=info
+      - HOMEPAGE_VAR_PROXMOX_USERNAME=${HOMEPAGE_VAR_PROXMOX_USERNAME}
+      - HOMEPAGE_VAR_PROXMOX_PASSWORD=${HOMEPAGE_VAR_PROXMOX_PASSWORD}
+      - HOMEPAGE_VAR_PROXMOX_URL=${HOMEPAGE_VAR_PROXMOX_URL}
+      - HOMEPAGE_VAR_PIHOLE_KEY=${HOMEPAGE_VAR_PIHOLE_KEY}
+      - HOMEPAGE_VAR_PIHOLE_URL=${HOMEPAGE_VAR_PIHOLE_URL}
+      - DOMAIN=${DOMAIN}
+      - LOCAL_DOMAIN=${LOCAL_DOMAIN}
+      - TRAEFIK_API_URL=${TRAEFIK_API_URL}
+      # Cloudflared
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
+      - CLOUDFLARE_TUNNEL_ID=${CLOUDFLARE_TUNNEL_ID}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+    ports:
+      - 3000:3000
+    volumes:
+      - ./config:/app/config
+      - ./images:/app/images  # for custom background images
+      - ./icons:/app/icons  # for custom icons
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend

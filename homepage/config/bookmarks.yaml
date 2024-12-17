@@ -1,0 +1,64 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/bookmarks
+
+- Developer:
+    - Github:
+        - abbr: GH
+          href: https://github.com/
+    - Personal-Github:
+        - abbr: PGH
+          href: https://github.com/Sinless777
+    - SinLess-Games-Github:
+        - abbr: SLGGH
+          href: https://github.com/Sinless-Games
+    - SinLess-Games-Enterprise-Github:
+        - abbr: SLGEGH
+          href: https://github.com/enterprises/sinlessgamesllc
+
+- Cloud:
+    - Cloudflare:
+        - abbr: CF
+          href: https://dash.cloudflare.com/
+    - Cloudflare-Dash:
+        - abbr: CFD
+          href: https://dash.cloudflare.com/
+    - AWS:
+        - abbr: AWS
+          href: https://aws.amazon.com/
+    - GCP:
+        - abbr: GCP
+          href: https://cloud.google.com/
+    - Azure:
+        - abbr: AZ
+          href: https://azure.microsoft.com/
+    - Linode:
+        - abbr: LD
+          href: https://www.linode.com/
+
+- Social:
+    - Reddit:
+        - abbr: RE
+          href: https://reddit.com/
+
+- Entertainment:
+    - YouTube:
+        - abbr: YT
+          href: https://youtube.com/
+    - YouTube-Music:
+        - abbr: YTM
+          href: https://music.youtube.com/
+    - Netflix:
+        - abbr: NF
+          href: https://www.netflix.com/
+    - Hulu:
+        - abbr: HU
+          href: https://www.hulu.com/
+
+- Anime:
+    - H!anime:
+        - abbr: HA
+          href: https://hianime.to
+    - Livechart:
+        - abbr: LC
+          href: https://www.livechart.me/

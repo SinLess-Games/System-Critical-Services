@@ -1,0 +1,19 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/service-widgets
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+
+- search:
+    provider: google
+    target: _blank
+    width: 25%
+
+- datetime:
+    text_size: xl
+    format:
+        timeStyle: short
+        hourCycle: h23
