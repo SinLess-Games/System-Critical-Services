@@ -13,14 +13,6 @@ services:
       TZ: "${TZ:-UTC}"
       AUTHENTIK_COOKIE_DOMAIN: '${AUTHENTIK_COOKIE_DOMAIN}'
       AUTHENTIK_ERROR_REPORTING__ENABLED: '${AUTHENTIK_ERROR_REPORTING__ENABLED}'
-      AUTHENTIK_EMAIL__HOST: '${AUTHENTIK_EMAIL__HOST}'
-      AUTHENTIK_EMAIL__PORT: '${AUTHENTIK_EMAIL__PORT}'
-      AUTHENTIK_EMAIL__USERNAME: 'file:///run/secrets/smtp_user'
-      AUTHENTIK_EMAIL__PASSWORD: 'file:///run/secrets/smtp_password'
-      AUTHENTIK_EMAIL__USE_TLS: '${AUTHENTIK_EMAIL__USE_TLS}'
-      AUTHENTIK_EMAIL__USE_SSL: '${AUTHENTIK_EMAIL__USE_SSL}'
-      AUTHENTIK_EMAIL__TIMEOUT: '${AUTHENTIK_EMAIL__TIMEOUT}'
-      AUTHENTIK_EMAIL__FROM: '${AUTHENTIK_EMAIL__FROM}'
       AUTHENTIK_LOG_LEVEL: '${AUTHENTIK_LOG_LEVEL}'
       AUTHENTIK_GDPR_COMPLIANCE: 'true'
       DOMAIN: '${DOMAIN}'
@@ -40,19 +32,17 @@ services:
       - backend
     labels:
       - traefik.enable=true
-      # http
+      # HTTP
       - "traefik.http.routers.authentik-server-rtr.rule=Host(`authentik.${DOMAIN}`)"
-      - "traefik.http.routers.authentik-server-rtr.entrypoints=https"
-      - "traefik.http.routers.authentik-server-rtr.tls=true"
-      # https:
+      - "traefik.http.routers.authentik-server-rtr.entrypoints=http"
+      - "traefik.http.routers.authentik-server-rtr.middlewares=redirect-to-https"
+      # HTTPS
       - "traefik.http.routers.authentik-server-rtr-https.rule=Host(`authentik.${DOMAIN}`)"
       - "traefik.http.routers.authentik-server-rtr-https.entrypoints=https"
       - "traefik.http.routers.authentik-server-rtr-https.tls=true"
-      # Services
-      - traefik.http.services.authentik-server.loadbalancer.server.port=9000
-      # watchtower labels
+      - "traefik.http.services.authentik-server.loadbalancer.server.port=9000"
+      # Watchtower labels
       - "com.centurylinklabs.watchtower.enable=true"
-
 
   authentik-proxy:
     image: ghcr.io/goauthentik/proxy
@@ -66,7 +56,7 @@ services:
       AUTHENTIK_TOKEN: ${AUTHENTIK_SINLESS_OPUTPOST_TOKEN}
       DOMAIN: ${DOMAIN}
     labels:
-      # watchtower labels
+      # Watchtower labels
       - "com.centurylinklabs.watchtower.enable=true"
 
   authentik-worker:
@@ -108,7 +98,7 @@ services:
     deploy:
       replicas: 1
     labels:
-      # watchtower labels
+      # Watchtower labels
       - "com.centurylinklabs.watchtower.enable=true"
 
   postgres:
@@ -131,7 +121,7 @@ services:
     networks:
       - backend
     labels:
-      # watchtower labels
+      # Watchtower labels
       - "com.centurylinklabs.watchtower.enable=true"
 
   redis:
@@ -152,5 +142,5 @@ services:
     networks:
       - backend
     labels:
-      # watchtower labels
+      # Watchtower labels
       - "com.centurylinklabs.watchtower.enable=true"
