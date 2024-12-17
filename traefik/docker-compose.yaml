@@ -30,17 +30,6 @@ services:
       # Enable Traefik
       - "traefik.enable=true"
 
-      # Local domain routing (HTTP -> HTTPS redirection)
-      - "traefik.http.routers.traefik-scs-dashboard_local-http.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
-      - "traefik.http.routers.traefik-scs-dashboard_local-http.entrypoints=http"
-      - "traefik.http.routers.traefik-scs-dashboard_local-http.middlewares=redirect-to-https"
-      - "traefik.http.routers.traefik-scs-dashboard_local-http.service=dashboard@internal"
-
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.entrypoints=https"
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.tls=true"
-      - "traefik.http.routers.traefik-scs-dashboard_local-https.tls.certresolver=cloudflare"
-
       # Domain routing
       - "traefik.http.routers.traefik-scs-dashboard_domain-http.rule=Host(`traefik-scs-dashboard.${DOMAIN}`)"
       - "traefik.http.routers.traefik-scs-dashboard_domain-http.entrypoints=http"
@@ -62,7 +51,6 @@ services:
       CF_DNS_API_TOKEN: "${CF_DNS_API_TOKEN}"        # Cloudflare DNS API Token
       TZ: "${TZ:-UTC}"                               # Timezone
       DOMAIN: ${DOMAIN}                              # Production domain
-      LOCAL_DOMAIN: ${LOCAL_DOMAIN}                  # Local development domain
     deploy:
       replicas: 1                                    # Single replica
       placement:
