@@ -15,6 +15,12 @@
     - SinLess-Games-Enterprise-Github:
         - abbr: SLGEGH
           href: https://github.com/enterprises/sinlessgamesllc
+    - GitLab:
+        - abbr: GL
+          href: https://gitlab.com/
+    - Bitbucket:
+        - abbr: BB
+          href: https://bitbucket.org/
 
 - Cloud:
     - Cloudflare:
@@ -35,11 +41,23 @@
     - Linode:
         - abbr: LD
           href: https://www.linode.com/
+    - DigitalOcean:
+        - abbr: DO
+          href: https://www.digitalocean.com/
 
 - Social:
     - Reddit:
         - abbr: RE
           href: https://reddit.com/
+    - Twitter:
+        - abbr: TW
+          href: https://twitter.com/
+    - Facebook:
+        - abbr: FB
+          href: https://facebook.com/
+    - LinkedIn:
+        - abbr: LI
+          href: https://www.linkedin.com/
 
 - Entertainment:
     - YouTube:
@@ -54,6 +72,12 @@
     - Hulu:
         - abbr: HU
           href: https://www.hulu.com/
+    - Spotify:
+        - abbr: SP
+          href: https://spotify.com/
+    - Apple-Music:
+        - abbr: AM
+          href: https://music.apple.com/
 
 - Anime:
     - H!anime:
@@ -62,3 +86,31 @@
     - Livechart:
         - abbr: LC
           href: https://www.livechart.me/
+
+- Tools:
+    - Docker:
+        - abbr: DOCK
+          href: https://www.docker.com/
+    - Kubernetes:
+        - abbr: K8S
+          href: https://kubernetes.io/
+    - Terraform:
+        - abbr: TF
+          href: https://www.terraform.io/
+    - Ansible:
+        - abbr: ANS
+          href: https://www.ansible.com/
+    - Helm:
+        - abbr: HL
+          href: https://helm.sh/
+
+- News:
+    - HackerNews:
+        - abbr: HN
+          href: https://news.ycombinator.com/
+    - TechCrunch:
+        - abbr: TC
+          href: https://techcrunch.com/
+    - Wired:
+        - abbr: WD
+          href: https://www.wired.com/
