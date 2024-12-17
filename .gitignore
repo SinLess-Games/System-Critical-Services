@@ -1,8 +1,39 @@
+# Ignore environment files
 .env
 
+# Ignore generated or temporary data
 _data/
+traefik/.data
 
-cloudflared/config/cert.pem
-cloudflared/config/credentials.json
+# Ignore log files
 *.log
-traefik/certs/cf-acme.json
+
+# Ignore Docker-related files
+docker-compose.override.yaml
+docker-compose.*.backup
+
+# Ignore IDE/editor configurations and cache
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# Ignore sensitive keys and secrets
+keys/
+*.key
+*.pem
+*.cert
+
+# Ignore backups
+*.tar
+*.zip
+*.bak
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore Python virtual environments and dependencies
+.venv/
+__pycache__/
+*.pyc
