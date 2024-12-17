@@ -3,42 +3,74 @@ services:
     image: traefik:v3.2.2
     container_name: traefik
     restart: always
-    labels:
-      # Traefik
-      # Global settings
-      - traefik.global.checkNewVersion=true
-      - traefik.global.sendAnonymousUsage=true
-      - "traefik.enable=true"
-      # Dashboard router
-      - "traefik.http.routers.traefik-scs-dashboard.rule=Host(`traefik-system-critical.sinlessgamesllc.com`)"
-      - "traefik.http.routers.traefik-scs-dashboard.entrypoints=websecure"
-      - "traefik.http.routers.traefik-scs-dashboard.tls.certresolver=cloudflare"
-      - "traefik.http.routers.traefik-scs-dashboard.middlewares=authentik-auth@file"
-      - "traefik.http.services.traefik-scs-dashboard.loadbalancer.server.port=8080"
-      # Traefik logging
-      - "traefik.log.level=DEBUG"
-      - "traefik.log.filePath=/data/traefik.log"
-      - "traefik.accessLog.filePath=/data/access.log"
-      - "traefik.accessLog.bufferingSize=100"
-      # Providers
-      - "traefik.providers.swarm=true"
-      - "traefik.providers.swarm.exposedByDefault=false"
-      - "traefik.providers.swarm.endpoint=unix:///var/run/docker.sock"
-      - "traefik.providers.swarm.watch=true"
-    networks:
-      - frontend
-      - backend
+    privileged: true
+    security_opt:
+      - no-new-privileges=true
+    depends_on:
+      cloudflared:
+        condition: service_started
+      # authentik-server:
+      #   condition: service_started
     ports:
-      - "80:80"     # HTTP
-      - "443:443"   # HTTPS
-      - "8080:8080" # Traefik Dashboard
+      - 443:443
+      - 80:80
+      - 8080:8080
+    networks:
+      frontend: 
+        aliases:
+          - traefik-scs-dashboard.${LOCAL_DOMAIN}
+          - traefik-scs-dashboard.${DOMAIN}
+      backend:
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ../.data/traefik:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /run/docker.sock:/run/docker.sock:ro
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./logs:/var/traefik/logs:rw
+      - ./certs/:/var/traefik/certs/:rw
+      - ./config/conf.d:/rules
+    labels:
+      # Global Labels
+      - "traefik.enable=true"
+      # Local domain Labels
+      - "traefik.http.routers.traefik-scs-dashboard_local-http.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
+      - "traefik.http.routers.traefik-scs-dashboard_local-http.entrypoints=http"
+      - "traefik.http.routers.traefik-scs-dashboard_local-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.traefik-scs-dashboard_local-http.service=dashboard@internal"
+      - "traefik.http.routers.traefik-scs-dashboard_local-http.priority=1"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.rule=Host(`traefik-scs-dashboard.${LOCAL_DOMAIN}`)"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.entrypoints=https"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.tls=true"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.service=dashboard@internal"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.priority=1"
+      - "traefik.http.routers.traefik-scs-dashboard_local-https.tls.certresolver=cloudflare"
+      # Authentik middleware
+      #- "traefik.http.routers.traefik-scs-dashboard_local-https.middlewares=authentik-auth@file"
+      # Domain Labels
+      - "traefik.http.routers.traefik-scs-dashboard_domain-http.rule=Host(`traefik-scs-dashboard.${DOMAIN}`)"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-http.entrypoints=http"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-http.service=dashboard@internal"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-http.priority=1"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.rule=Host(`traefik-scs-dashboard.${DOMAIN}`)"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.entrypoints=https"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.tls=true"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.service=dashboard@internal"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.priority=1"
+      - "traefik.http.routers.traefik-scs-dashboard_domain-https.tls.certresolver=cloudflare"
+      # Authentik middleware
+      #- "traefik.http.routers.traefik-scs-dashboard_domain-https.middlewares=authentik-auth@file"
+      # Middlewares
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      # watchtower labels
+      - "com.centurylinklabs.watchtower.enable=true"
     environment:
       CF_API_EMAIL: "${CF_API_EMAIL}"
       CF_DNS_API_TOKEN: "${CF_DNS_API_TOKEN}"
       TZ: "${TZ:-UTC}"
+      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+      DOMAIN: ${DOMAIN}
+      LOCAL_DOMAIN: ${LOCAL_DOMAIN}
     deploy:
       replicas: 1
       placement:
@@ -55,12 +87,4 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-        window: 120s
-
-
-networks:
-  backend:
-    external: true
-  
-  frontend:
-    external: true
+     
