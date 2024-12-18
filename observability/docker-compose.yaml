@@ -3,7 +3,7 @@ x-environment: &oncall-environment
   SECRET_KEY: ${GRAFANA_SECRET_KEY:-}
   FEATURE_PROMETHEUS_EXPORTER_ENABLED: ${FEATURE_PROMETHEUS_EXPORTER_ENABLED:-false}
   PROMETHEUS_EXPORTER_SECRET: ${PROMETHEUS_EXPORTER_SECRET:-}
-  REDIS_URI: redis://redis:6379/0
+  REDIS_URI: redis://redis-oncall:6379/0
   DJANGO_SETTINGS_MODULE: settings.hobby
   CELERY_WORKER_QUEUE: "default,critical,long,slack,telegram,webhook,retry,celery,grafana"
   CELERY_WORKER_CONCURRENCY: "1"
@@ -77,6 +77,7 @@ services:
 
   mysql-observability:
     image: mysql:8.0.32
+    container_name: mysql-observability
     command: >-
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -173,12 +174,15 @@ services:
   grafana:
     image: "grafana/grafana:latest"
     restart: always
+    container_name: grafana
     networks:
       - backend
       - frontend
-    ports:
-      - "3001:3000"
     environment:
+      GF_DATABASE_TYPE: mysql
+      GF_DATABASE_HOST: ${MYSQL_HOST:-mysql}
+      GF_DATABASE_USER: ${MYSQL_USER:-root}
+      GF_DATABASE_PASSWORD: ${MYSQL_PASSWORD:?err}
       GF_FEATURE_TOGGLES_ENABLE: externalServiceAccounts
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_USER:-admin}
