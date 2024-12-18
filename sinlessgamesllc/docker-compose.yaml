@@ -3,15 +3,6 @@ services:
     image: sinless777/sinlessgames-ui:1.0.89
     networks:
       - frontend
-    environment:
-      - DOMAIN=${DOMAIN}
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.sinless-games.entrypoints=websecure
-      - "traefik.http.routers.sinless-games.rule=Host(`${DOMAIN}`)"
-      - traefik.http.routers.sinless-games.tls=true
-      - traefik.http.routers.sinless-games.tls.certresolver=cloudflare
-      - traefik.http.services.sinless-games.loadbalancer.server.port=3000
     deploy:
       mode: replicated
       replicas: 3
