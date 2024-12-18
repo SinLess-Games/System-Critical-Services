@@ -55,3 +55,4 @@ include:
   - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
   - ./portainer/docker-compose.yaml               # Portainer for Docker container management and monitoring
   - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
+  - ./observability/docker-compose.yaml           # Observability stack for monitoring and alerting
