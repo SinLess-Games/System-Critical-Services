@@ -7,6 +7,7 @@ _data/
 traefik/.data
 homepage/config/logs/
 portainer/.data/
+observability/.data/
 
 # Ignore log files
 *.log
