@@ -49,10 +49,9 @@ networks:
 
 # Include additional service definitions from other Docker Compose files.
 include:
-  #- ./traefik/docker-compose.yaml                 # Traefik reverse proxy for managing external and internal traffic
   - ./cloudflared/docker-compose.yaml             # Cloudflare Tunnel for secure remote access to internal services
-  #- ./authentik/docker-compose.yaml               # Authentik for Single Sign-On (SSO) and authentication management
-  #- ./minio/docker-compose.yaml                   # MinIO service for S3-compatible object storage
   - ./watchtower/docker-compose.yaml              # Watchtower for automated updates of Docker containers
   - ./sinlessgamesllc/docker-compose.yaml         # Placeholder for custom application services
+  - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
+  - ./portainer/docker-compose.yaml               # Portainer for Docker container management and monitoring
   - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
