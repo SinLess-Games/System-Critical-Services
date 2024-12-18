@@ -5,24 +5,11 @@ services:
     restart: always
     environment:
       TZ: "${TZ:-UTC}"
-    labels:
-      - "traefik.enable=true"
-      # Routers
-      - "traefik.http.routers.portainer.rule=Host(`portainer.sinlessgamesllc.com`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.tls.certresolver=cloudflare"
-      - "traefik.http.routers.portainer.tls=true"
-      - "traefik.http.routers.portainer.middlewares=authentik-auth@file"
-      # Services
-      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     networks:
       - frontend
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./.data/portainer:/data
-    depends_on:
-      traefik:
-        condition: service_started
     deploy:
       replicas: 1
       placement:
@@ -64,7 +51,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.role != manager
+          - node.os == linux
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9001/ping || exit 1"]
       interval: 30s
