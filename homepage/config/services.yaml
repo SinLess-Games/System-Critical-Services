@@ -59,16 +59,6 @@
             url: {{HOMEPAGE_VAR_PIHOLE_URL}}
             version: 5
             key: {{HOMEPAGE_VAR_PIHOLE_KEY}}
-    - Traefik-scs-Dashboard:
-        href: {{TRAFFIK_API_URL}}
-        description: Traefik Dashboard
-        icon: traefik.svg
-        siteMonitor: {{TRAFFIK_API_URL}}
-        widget:
-            type: traefik
-            url: {{TRAFFIK_API_URL}}
-            username: {{TRAFFIK_USERNAME}}
-            password: {{TRAFFIK_PASSWORD}}
 
 # - Development:
 
