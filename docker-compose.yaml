@@ -21,19 +21,38 @@ networks:
   
   frontend:                                       # Frontend network for user-facing services (e.g., web interfaces)
     name: frontend                                # Custom name for the frontend network
-    driver: overlay                               # Overlay network enables scalability and multi-node communication
+    driver: bridge                              # Overlay network enables scalability and multi-node communication
     attachable: true                              # Allows additional containers to attach dynamically
   
   unifi-network:                                  # Dedicated network for UniFi services (e.g., network management tools)
     name: unifi-network                           # Custom bridge network name
     driver: bridge                                # Bridge network connects containers on the same host
 
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.10.0/24
+  radicale:
+    driver: bridge
+  webmail:
+    driver: bridge
+  clamav:
+    driver: bridge
+  oletools:
+    driver: bridge
+    internal: true
+  fts_attachments:
+    driver: bridge
+    internal: true
+
 # Include additional service definitions from other Docker Compose files.
 include:
-  - ./traefik/docker-compose.yaml                 # Traefik reverse proxy for managing external and internal traffic
+  #- ./traefik/docker-compose.yaml                 # Traefik reverse proxy for managing external and internal traffic
   - ./cloudflared/docker-compose.yaml             # Cloudflare Tunnel for secure remote access to internal services
-  - ./authentik/docker-compose.yaml               # Authentik for Single Sign-On (SSO) and authentication management
-  - ./minio/docker-compose.yaml                   # MinIO service for S3-compatible object storage
+  #- ./authentik/docker-compose.yaml               # Authentik for Single Sign-On (SSO) and authentication management
+  #- ./minio/docker-compose.yaml                   # MinIO service for S3-compatible object storage
   - ./watchtower/docker-compose.yaml              # Watchtower for automated updates of Docker containers
-  # - ./sinlessgamesllc/docker-compose.yaml         # Placeholder for custom application services
-  # - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
+  - ./sinlessgamesllc/docker-compose.yaml         # Placeholder for custom application services
+  - ./homepage/docker-compose.yaml                # Homepage dashboard for service visibility and management
