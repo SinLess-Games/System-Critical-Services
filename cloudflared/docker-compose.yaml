@@ -12,10 +12,9 @@ services:
       TZ: "${TZ:-UTC}"
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
     deploy:
-      replicas: 1
       placement:
         constraints:
-          - node.role == manager
+          - node.os == linux
       resources:
         reservations:
           cpus: '0.10'
