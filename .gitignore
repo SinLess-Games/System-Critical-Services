@@ -8,6 +8,8 @@ traefik/.data
 homepage/config/logs/
 portainer/.data/
 observability/.data/
+unifi/.data/
+prometheus/.data/
 
 # Ignore log files
 *.log
