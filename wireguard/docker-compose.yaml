@@ -3,9 +3,6 @@ networks:
     external: true
   frontend:
     external: true
-  watchtower-network:
-    external: true
-
 
 services:
   wireguard:
@@ -18,11 +15,22 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/Denver
-      - SERVERURL=wireguard.sinlessgamesllc.com
+
+      # WireGuard port
       - SERVERPORT=51820
+
+      # Number of peers (clients) you want to auto-generate
       - PEERS=1
+
+      # Automatically use upstream DNS or specify your own
       - PEERDNS=auto
-      - INTERNAL_SUBNET=10.0.0.1
+
+      # WireGuard virtual subnet (tunnel IPs for clients & server)
+      - INTERNAL_SUBNET=10.8.0.0/24
+
+      # List the subnets you want to route through the tunnel
+      - ALLOWEDIPS=192.168.86.0/24,192.168.10.0/24
+
     volumes:
       - ./config:/config
       - /lib/modules:/lib/modules
@@ -32,9 +40,3 @@ services:
     networks:
       - backend
       - frontend
-      - watchtower-network
-    deploy:
-      resources:
-        limits:
-          memory: 100m
-          cpus: "0.5"
