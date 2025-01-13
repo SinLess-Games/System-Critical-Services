@@ -1,0 +1,27 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+
+volumes:
+  influxdb2-data:
+
+services:
+  influxdb:
+    container_name: influxdb
+    image: influxdb:2.7.1-alpine
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "8086:8086" # Exposing the InfluxDB HTTP API
+    environment:
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=${INFLUX_PASSWORD}
+      - INFLUXDB_ORG=sinless-games-llc
+      - INFLUXDB_BUCKET=metrics
+    volumes:
+      - influxdb2-data:/var/lib/influxdb2
+      - ./etc:/etc/influxdb2
