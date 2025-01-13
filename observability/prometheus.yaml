@@ -1,0 +1,48 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    networks:
+      - backend
+      - frontend
+      - watchtower-network
+    volumes:
+      - ./prometheus:/etc/prometheus
+    depends_on:
+      - alertmanager
+      - mimir
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    security_opt:
+      - no-new-privileges:true
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    networks:
+      - backend
+      - watchtower-network
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./configs/alertmanager.yaml:/etc/alertmanager/alertmanager.yml
+    depends_on:
+      - alertmanager-discord-notifier
+    security_opt:
+      - no-new-privileges:true
+
+  alertmanager-discord-notifier:
+    image: ghcr.io/jsawatzky/alertmanager-discord:latest
+    container_name: alertmanager-discord-notifier
+    networks:
+      - backend
+      - watchtower-network
+    environment:
+      - ADN_WEBHOOK=${DISCORD_WEBHOOK}
+    ports:
+      - "9094:9094"
+    security_opt:
+      - no-new-privileges:true
