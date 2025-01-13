@@ -1,87 +1,18 @@
-x-environment: &oncall-environment
-  BASE_URL: grafana.${DOMAIN}
-  SECRET_KEY: ${GRAFANA_SECRET_KEY:-}
-  FEATURE_PROMETHEUS_EXPORTER_ENABLED: ${FEATURE_PROMETHEUS_EXPORTER_ENABLED:-false}
-  PROMETHEUS_EXPORTER_SECRET: ${PROMETHEUS_EXPORTER_SECRET:-}
-  REDIS_URI: redis://redis-oncall:6379/0
-  DJANGO_SETTINGS_MODULE: settings.hobby
-  CELERY_WORKER_QUEUE: "default,critical,long,slack,telegram,webhook,retry,celery,grafana"
-  CELERY_WORKER_CONCURRENCY: "1"
-  CELERY_WORKER_MAX_TASKS_PER_CHILD: "100"
-  CELERY_WORKER_SHUTDOWN_INTERVAL: "65m"
-  CELERY_WORKER_BEAT_ENABLED: "True"
-  GRAFANA_API_URL: http://grafana:3000
-  MYSQL_PASSWORD: $MYSQL_PASSWORD
-  MYSQL_DB_NAME: oncall_hobby
-  MYSQL_USER: ${MYSQL_USER:-root}
-  MYSQL_HOST: ${MYSQL_HOST:-mysql}
-  MYSQL_PORT: 3306
-  RABBITMQ_USERNAME: "rabbitmq"
-  RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
-  RABBITMQ_HOST: "rabbitmq"
-  RABBITMQ_PORT: "5672"
-  RABBITMQ_DEFAULT_VHOST: "/"
+include:
+  - ./ltm.yaml
+  - ./oncall.yaml
+  - ./prometheus.yaml
+  - ./tools.yaml
+  - ./influx-db.yaml
 
 services:
-  engine:
-    image: grafana/oncall
-    restart: always
-    networks:
-      - backend
-    command: sh -c "uwsgi --ini uwsgi.ini"
-    environment: *oncall-environment
-    volumes:
-      - ./.data/oncall:/var/lib/oncall
-    depends_on:
-      mysql-observability:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
-  celery:
-    image: grafana/oncall
-    restart: always
-    command: sh -c "./celery_with_exporter.sh"
-    environment: *oncall-environment
-    networks:
-      - backend
-    volumes:
-      - ./.data/oncall:/var/lib/oncall
-    depends_on:
-      mysql-observability:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_started
-
-  oncall_db_migration:
-    image: grafana/oncall
-    command: python manage.py migrate --noinput
-    environment: *oncall-environment
-    networks:
-      - backend
-    depends_on:
-      mysql-observability:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  mysql-observability:
+  mysql:
     image: mysql:8.0.32
-    container_name: mysql-observability
+    container_name: mysql
     command: >-
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    restart: always
+    restart: always 
     networks:
       - backend
     expose:
@@ -89,120 +20,64 @@ services:
     volumes:
       - ./.data/mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
-      MYSQL_DATABASE: oncall_hobby
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: grafana
     deploy:
       resources:
         limits:
           memory: 1000m
           cpus: "0.5"
     healthcheck:
-      test: "mysql -uroot -p$MYSQL_PASSWORD oncall_hobby -e 'select 1'"
+      test: "mysql -uroot -p$MYSQL_ROOT_PASSWORD grafana -e 'select 1'"
       timeout: 20s
       retries: 10
 
-  redis:
-    image: redis:7.0.15
-    restart: always
-    container_name: redis-oncall
-    networks:
-      - backend
-    expose:
-      - 6379
-    volumes:
-      - ./.data/redis:/data
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-          cpus: "0.5"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      timeout: 5s
-      interval: 5s
-      retries: 10
-
-  prometheus:
-    image: prom/prometheus
-    hostname: prometheus
-    restart: always
-    networks:
-      - backend
-      - frontend
-    volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
-      - ./.data/prometheus:/prometheus
-    profiles:
-      - with_prometheus
-  
-  rabbitmq:
-    image: "rabbitmq:3.12.0-management"
-    restart: always
-    hostname: rabbitmq
-    networks:
-      - backend
-    volumes:
-      - ./.data/rabbitmq:/var/lib/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: "rabbitmq"
-      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
-      RABBITMQ_DEFAULT_VHOST: "/"
-    deploy:
-      resources:
-        limits:
-          memory: 1000m
-          cpus: "0.5"
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
-
-  mysql_to_create_grafana_db:
-    image: mysql:8.0.32
-    networks:
-      - backend
-    command: >-
-      bash -c "mysql -h ${MYSQL_HOST:-mysql} -uroot -p${MYSQL_PASSWORD:?err}
-      -e 'CREATE DATABASE IF NOT EXISTS grafana CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'"
-    depends_on:
-      mysql-observability:
-        condition: service_healthy
-    profiles:
-      - with_grafana
-
   grafana:
-    image: "grafana/grafana:latest"
+    image: "grafana/grafana:11.4.0"
     restart: always
     container_name: grafana
+    depends_on:
+      loki:
+        condition: service_started
+      mimir:
+        condition: service_started
+      engine:
+        condition: service_started
+      tempo:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+      influxdb:
+        condition: service_started
     networks:
       - backend
       - frontend
+      - watchtower-network
+    expose:
+      - 3000
     environment:
       GF_DATABASE_TYPE: mysql
       GF_DATABASE_HOST: ${MYSQL_HOST:-mysql}
       GF_DATABASE_USER: ${MYSQL_USER:-root}
-      GF_DATABASE_PASSWORD: ${MYSQL_PASSWORD:?err}
+      GF_DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
       GF_FEATURE_TOGGLES_ENABLE: externalServiceAccounts
-      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-oncall-app
       GF_INSTALL_PLUGINS: grafana-oncall-app
       GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: true
+      GF_LOKI_URL: http://loki:3100
+      GF_TEMPO_URL: http://tempo:3200
+      GF_MIMIR_URL: http://mimir:9009
     volumes:
-      - ./.data/grafana:/var/lib/grafana
-    depends_on:
-      mysql_to_create_grafana_db:
-        condition: service_completed_successfully
-      mysql-observability:
-        condition: service_healthy
+      - grafana-data:/etc/grafana
+      - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml
+      - ./configs/grafana.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     deploy:
       resources:
         limits:
           memory: 500m
           cpus: "0.5"
-    profiles:
-      - with_grafana
     configs:
       - source: grafana.ini
         target: /etc/grafana/grafana.ini
@@ -212,3 +87,17 @@ configs:
     content: |
       [feature_toggles]
       accessControlOnCall = false
+
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+  watchtower-network:
+    external: true
+
+volumes:
+  grafana-data:
+    driver: local
+  dbdata:
+    driver: local
