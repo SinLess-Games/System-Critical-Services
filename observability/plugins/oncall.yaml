@@ -1,0 +1,10 @@
+apiVersion: 1
+
+apps:
+  - type: grafana-oncall-app
+    org_id: 1
+    enabled: true
+    jsonData:
+      stackId: 5
+      orgId: 1
+      onCallApiUrl: http://grafana-oncall:8081
