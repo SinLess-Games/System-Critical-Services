@@ -1,3 +1,11 @@
+networks:
+  frontend:
+    external: true
+  backend:                                        # Backend network for inter-service communication
+    external: true
+  watchtower-network:
+    external: true
+
 services:
   cloudflared:
     image: cloudflare/cloudflared:2024.2.1
@@ -11,7 +19,6 @@ services:
       TZ: "${TZ:-UTC}"
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
     deploy:
-      replicas: 3
       mode: global
       placement:
         constraints:
