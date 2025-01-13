@@ -1,6 +1,15 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:v0.9.13
+    container_name: homepage
+    ports:
+      - 3000:3000
     environment:
       - LOG_LEVEL=info
       - HOMEPAGE_VAR_PROXMOX_USERNAME=${HOMEPAGE_VAR_PROXMOX_USERNAME}
@@ -9,14 +18,27 @@ services:
       - HOMEPAGE_VAR_PIHOLE_KEY=${HOMEPAGE_VAR_PIHOLE_KEY}
       - HOMEPAGE_VAR_PIHOLE_URL=${HOMEPAGE_VAR_PIHOLE_URL}
       - DOMAIN=${DOMAIN}
-      - LOCAL_DOMAIN=${LOCAL_DOMAIN}
-      - TRAEFIK_API_URL=${TRAEFIK_API_URL}
+      - HOMEPAGE_VAR_LOCAL_DOMAIN=${LOCAL_DOMAIN}
+      - HOMEPAGE_VAR_TRAEFIK_API_URL=${TRAEFIK_API_URL}
       # Cloudflared
-      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
-      - CLOUDFLARE_TUNNEL_ID=${CLOUDFLARE_TUNNEL_ID}
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-    ports:
-      - 3000:3000
+      - HOMEPAGE_VAR_CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
+      - HOMEPAGE_VAR_CLOUDFLARE_TUNNEL_ID=${CLOUDFLARE_TUNNEL_ID}
+      - HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      # Portainer
+      - HOMEPAGE_VAR_PORTAINER_ACCESS_KEY=${HOMEPAGE_VAR_PORTAINER_ACCESS_KEY}
+      - HOMEPAGE_VAR_PORTAINER_URL=${PORTAINER_URL}
+      # Watchtower
+      - HOMEPAGE_VAR_WATCHTOWER_API_TOKEN=${WATCHTOWER_API_TOKEN}
+      # Unifi
+      - HOMEPAGE_VAR_UNIFI_URL=${HOMEPAGE_VAR_UNIFI_URL}
+      - HOMEPAGE_VAR_UNIFI_USER=${HOMEPAGE_VAR_UNIFI_USER}
+      - HOMEPAGE_VAR_UNIFI_PASSWORD=${HOMEPAGE_VAR_UNIFI_PASSWORD}
+      # Prometheus
+      - HOMEPAGE_VAR_SWARM_PROMETHEUS_URL=${HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}
+      # Grafna
+      - HOMEPAGE_VAR_GRAFANA_URL=${HOMEPAGE_VAR_GRAFANA_URL}
+      - HOMEPAGE_VAR_GRAFANA_USER=${HOMEPAGE_VAR_GRAFANA_USER}
+      - HOMEPAGE_VAR_GRAFANA_PASSWORD=${HOMEPAGE_VAR_GRAFANA_PASSWORD}
     volumes:
       - ./config:/app/config
       - ./images:/app/images  # for custom background images
@@ -26,16 +48,3 @@ services:
     networks:
       - frontend
       - backend
-    labels:
-        # Traefik labels for HTTP and HTTPS routing
-        - "traefik.enable=true"
-        - "traefik.http.routers.homepage-http.rule=Host(`homepage.${DOMAIN}`)"
-        - "traefik.http.routers.homepage-http.entrypoints=http"
-        - "traefik.http.routers.homepage-http.middlewares=redirect-to-https"
-        - "traefik.http.services.homepage.loadbalancer.server.port=3000"
-        
-        - "traefik.http.routers.homepage-https.rule=Host(`homepage.${DOMAIN}`)"
-        - "traefik.http.routers.homepage-https.entrypoints=https"
-        - "traefik.http.routers.homepage-https.tls=true"
-        - "traefik.http.routers.homepage-https.tls.certresolver=cloudflare"
-        - "traefik.http.routers.homepage-https.middlewares=authentik-auth@file"
