@@ -1,0 +1,40 @@
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+  watchtower-network:
+    external: true
+
+
+services:
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Denver
+      - SERVERURL=wireguard.sinlessgamesllc.com
+      - SERVERPORT=51820
+      - PEERS=1
+      - PEERDNS=auto
+      - INTERNAL_SUBNET=10.0.0.1
+    volumes:
+      - ./config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    restart: unless-stopped
+    networks:
+      - backend
+      - frontend
+      - watchtower-network
+    deploy:
+      resources:
+        limits:
+          memory: 100m
+          cpus: "0.5"
