@@ -2,82 +2,118 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/bookmarks
 
-- Developer:
-    - Github:
-        - abbr: GH
-          href: https://github.com/
-    - Personal-Github:
-        - abbr: PGH
-          href: https://github.com/Sinless777
-    - SinLess-Games-Github:
-        - abbr: SLGGH
-          href: https://github.com/Sinless-Games
-    - SinLess-Games-Enterprise-Github:
-        - abbr: SLGEGH
-          href: https://github.com/enterprises/sinlessgamesllc
-    - GitLab:
-        - abbr: GL
-          href: https://gitlab.com/
-    - Bitbucket:
-        - abbr: BB
-          href: https://bitbucket.org/
-
 - Cloud:
     - Cloudflare:
-        - abbr: CF
+        - icon: cloudflare.svg
           href: https://dash.cloudflare.com/
     - Cloudflare-Dash:
-        - abbr: CFD
+        - icon: cloudflare.svg
           href: https://dash.cloudflare.com/
+    - Cloudflare-Zero-Trust:
+        - icon: cloudflare-zero-trust.svg
+          href: https://one.dash.cloudflare.com/9517bf561f1f713ab87d1523193c7cc5/home
     - AWS:
-        - abbr: AWS
+        - icon: aws.svg
           href: https://aws.amazon.com/
     - GCP:
-        - abbr: GCP
+        - icon: google-cloud-platform.svg
           href: https://cloud.google.com/
     - Azure:
-        - abbr: AZ
+        - icon: microsoft-azure.svg
           href: https://azure.microsoft.com/
     - Linode:
-        - abbr: LD
+        - icon: linode.svg
           href: https://www.linode.com/
     - DigitalOcean:
-        - abbr: DO
+        - icon: digital-ocean.svg
           href: https://www.digitalocean.com/
-
-- Social:
-    - Reddit:
-        - abbr: RE
-          href: https://reddit.com/
-    - Twitter:
-        - abbr: TW
-          href: https://twitter.com/
-    - Facebook:
-        - abbr: FB
-          href: https://facebook.com/
-    - LinkedIn:
-        - abbr: LI
-          href: https://www.linkedin.com/
 
 - Entertainment:
     - YouTube:
-        - abbr: YT
+        - icon: youtube.svg
           href: https://youtube.com/
     - YouTube-Music:
-        - abbr: YTM
+        - icon: youtube-music.svg
           href: https://music.youtube.com/
     - Netflix:
-        - abbr: NF
+        - icon: netflix.svg
           href: https://www.netflix.com/
     - Hulu:
-        - abbr: HU
+        - icon: sh-hulu
           href: https://www.hulu.com/
     - Spotify:
-        - abbr: SP
+        - icon: spotify.svg
           href: https://spotify.com/
     - Apple-Music:
-        - abbr: AM
+        - icon: si-applemusic-#FA243C
           href: https://music.apple.com/
+    - FMHY-Piracy-Guide:
+        - abbr: FMHY
+          href: https://fmhy.net/videopiracyguide/
+
+- Developer:
+    - Github:
+        - icon: si-github
+          href: https://github.com/
+    - Personal-Github:
+        - icon: si-github
+          href: https://github.com/Sinless777
+    - SinLess-Games-Github:
+        - icon: si-github
+          href: https://github.com/Sinless-Games
+    - SinLess-Games-Enterprise-Github:
+        - icon: si-github
+          href: https://github.com/enterprises/sinlessgamesllc
+    - GitLab:
+        - icon: gitlab.svg
+          href: https://gitlab.sinlessgamesllc.com/
+    - Bitbucket:
+        - icon: si-bitbucket-#0052CC
+          href: https://bitbucket.org/
+
+- Tools:
+    - Docker:
+        - icon: docker.svg
+          href: https://www.docker.com/
+    - Kubernetes:
+        - icon: kubernetes.svg
+          href: https://kubernetes.io/
+    - Terraform:
+        - icon: terraform.svg
+          href: https://www.terraform.io/
+    - Ansible:
+        - icon: ansible.svg
+          href: https://www.ansible.com/
+    - Helm:
+        - icon: helm.svg
+          href: https://helm.sh/
+
+- Social:
+    - Reddit:
+        - icon: reddit.svg
+          href: https://reddit.com/
+    - Twitter:
+        - icon: twitter.svg
+          href: https://twitter.com/
+    - Facebook:
+        - icon: facebook.svg
+          href: https://facebook.com/
+    - LinkedIn:
+        - icon: linkedin.svg
+          href: https://www.linkedin.com/
+
+- AI-Stuff:
+    - ChrushOn:
+        - abbr: CO
+          href: https://crushon.ai
+    
+    - OniiChat:
+        - abbr: OC
+          href: https://oniichat.com
+
+    - ChatGPT:
+        - abbr: CGPT
+          href: https://chatgpt.com
 
 - Anime:
     - H!anime:
@@ -87,30 +123,37 @@
         - abbr: LC
           href: https://www.livechart.me/
 
-- Tools:
-    - Docker:
-        - abbr: DOCK
-          href: https://www.docker.com/
-    - Kubernetes:
-        - abbr: K8S
-          href: https://kubernetes.io/
-    - Terraform:
-        - abbr: TF
-          href: https://www.terraform.io/
-    - Ansible:
-        - abbr: ANS
-          href: https://www.ansible.com/
-    - Helm:
-        - abbr: HL
-          href: https://helm.sh/
+- Work:
+    - nuclino:
+        - abbr: NUC
+          href: https://app.nuclino.com/
 
-- News:
-    - HackerNews:
-        - abbr: HN
-          href: https://news.ycombinator.com/
-    - TechCrunch:
+    - Stackoverflow:
+        - icon: si-stackoverflow-#F58025
+          href: https://stackoverflow.com
+
+- Personal:
+    - Onedrive:
+        - icon: sh-microsoft-onedrive
+          href: https://onedrive.live.com/?id=root&cid=3EFDE119CBC03E98/
+
+- Social:
+    - Threads:
+        - abbr: TRD
+          href: https://www.threads.net/
+    
+    - Facebook:
+        - abbr: FB
+          href: https://faceook.com
+
+    - Instagram:
+        - abbr: INS
+          href:  https://instagram.com
+    
+    - The Cage:
         - abbr: TC
-          href: https://techcrunch.com/
-    - Wired:
-        - abbr: WD
-          href: https://www.wired.com/
+          href: https://thecage.co/
+
+    - Tumblr:
+        - abbr: TMBR
+          href: https://www.tumblr.com/
