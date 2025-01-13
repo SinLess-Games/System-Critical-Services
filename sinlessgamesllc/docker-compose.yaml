@@ -1,8 +1,16 @@
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+
+
 services:
   sinlessgames:
     image: sinless777/sinlessgames-ui:1.0.89
     networks:
       - frontend
+      - backend
     deploy:
       mode: replicated
       replicas: 3
