@@ -8,6 +8,7 @@
         description: Proxmox Virtual Environment
         icon: proxmox.png
         siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        provider: proxmox
         widget:
             type: proxmox
             url: {{HOMEPAGE_VAR_PROXMOX_URL}}
@@ -59,11 +60,49 @@
             url: {{HOMEPAGE_VAR_PIHOLE_URL}}
             version: 5
             key: {{HOMEPAGE_VAR_PIHOLE_KEY}}
-
-# - Development:
+    - Unifi-Network-Controller:
+        href: {{HOMEPAGE_VAR_UNIFI_URL}}
+        description: ""
+        icon: unifi.svg
+        siteMonitor: {{HOMEPAGE_VAR_UNIFI_URL}}
 
 # - Automation:
 
-# - Monitoring:
+- Monitoring:
+    - Portainer:
+        href: {{HOMEPAGE_VAR_PORTAINER_URL}}
+        icon: portainer.png
+        siteMonitor: {{HOMEPAGE_VAR_PORTAINER_URL}}
+        widget:
+            type: portainer
+            url: {{HOMEPAGE_VAR_PORTAINER_URL}}
+            env: 5
+            key: {{HOMEPAGE_VAR_PORTAINER_ACCESS_KEY}}
+    - Grafana:
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        icon: grafana.svg
+        siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+            type: grafana
+            url: {{HOMEPAGE_VAR_GRAFANA_URL}}
+            username: {{HOMEPAGE_VAR_GRAFANA_USER}}
+            password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
+
+    ##################################################################################
+    # Prometheus
+    ##################################################################################
+    - Swarm-Prometheus:
+        href: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
+        icon: prometheus.svg
+        siteMonitor: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
+        widget:
+            type: prometheus
+            url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
 
 # - Security:
+
+
+
+- Documentation:
+    - Awesome-Prometheus-Rules:
+        href: https://samber.github.io/awesome-prometheus-alerts/
