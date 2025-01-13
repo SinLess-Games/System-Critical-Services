@@ -1,11 +1,8 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/settings
-
-# providers:
-#   openweathermap: openweathermapapikey
-#   weatherapi: weatherapiapikey
 title: SinLess Games Homepage
+showStats: true
 
 background: 
   image: https://img.freepik.com/free-photo/anime-moon-landscape_23-2151645903.jpg
@@ -16,19 +13,31 @@ background:
 
 cardBlur: sm # sm, "", md, xl... see https://tailwindcss.com/docs/backdrop-blur
 
+groupsInitiallyCollapsed: true
+
 headerStyle: boxed
 
 layout:
   Monitoring:
     icon: mdi-code-brackets
     style: row
+    initiallyCollapsed: false
     columns: 4
+    Pometheus:
+      icon: prometheus.svg
+      columns: 4
+      style: row
+      initiallyCollapsed: false
 
   Networking:
+    initiallyCollapsed: false
     icon: mdi-network
+    columns: 4
   
   Infrastructure:
-    icon: sh-Terraform
+    initiallyCollapsed: false
+    icon: mdi-network
+    columns: 4
   
   # Development:
   #   icon: fas fa-code
@@ -38,3 +47,19 @@ layout:
 
   # Automation:
   #   icon: fas fa-robot
+
+  Documentation:
+    initiallyCollapsed: false
+    style: row
+
+theme: dark
+color: slate
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+  provider: [google, duckduckgo, brave]
+
+hideVersion: true
