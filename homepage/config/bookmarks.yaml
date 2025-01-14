@@ -136,6 +136,9 @@
     - Onedrive:
         - icon: sh-microsoft-onedrive
           href: https://onedrive.live.com/?id=root&cid=3EFDE119CBC03E98/
+    - Google Drive:
+        - icon: google-drive.svg
+          href: https://drive.google.com/drive/home
 
 - Social:
     - Threads:
