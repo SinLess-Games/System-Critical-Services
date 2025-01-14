@@ -1,0 +1,26 @@
+networks:
+  backend:
+    external: true
+
+services:
+  fluentd:
+    image: fluent/fluentd:v1.16.3-1.0
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - backend
+    volumes:
+      - ./fluent.conf:/fluentd/etc/fluent.conf:ro
+      - fluentd-buffer:/fluentd/buffer
+    environment:
+      - FLUENT_UID=0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  fluentd-buffer:
+    driver: local
