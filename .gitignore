@@ -5,11 +5,8 @@
 # Ignore generated or temporary data
 _data/
 traefik/.data
-homepage/config/logs/
-portainer/.data/
-observability/.data/
-unifi/.data/
-prometheus/.data/
+**/**/logs/
+**/.data/
 wireguard/config/
 
 # Ignore log files
