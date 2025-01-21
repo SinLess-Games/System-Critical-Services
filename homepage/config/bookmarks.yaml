@@ -57,10 +57,10 @@
           href: https://github.com/
     - Personal-Github:
         - icon: si-github
-          href: https://github.com/Sinless777
+          href: https://github.com/Sinless777/repositories
     - SinLess-Games-Github:
         - icon: si-github
-          href: https://github.com/Sinless-Games
+          href: https://github.com/Sinless-Games/repositories
     - SinLess-Games-Enterprise-Github:
         - icon: si-github
           href: https://github.com/enterprises/sinlessgamesllc
@@ -160,3 +160,7 @@
     - Tumblr:
         - abbr: TMBR
           href: https://www.tumblr.com/
+    
+    - LinkedIn:
+        - abbr: LI
+          href: https://linkedin.com/
