@@ -119,9 +119,18 @@
     - H!anime:
         - abbr: HA
           href: https://hianime.to
+    - 9Anime:
+        - abbr: 9A
+          href: https://9animetv.to/
     - Livechart:
         - abbr: LC
           href: https://www.livechart.me/
+    - Nyaa:
+        - abbr: nyaa
+          href: https://nyaa.si/
+    - SeaDex:
+        - abbr: SD
+          href: https://releases.moe/
 
 - Work:
     - nuclino:

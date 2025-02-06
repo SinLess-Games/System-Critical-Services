@@ -44,7 +44,7 @@ services:
       - ./images:/app/images  # for custom background images
       - ./icons:/app/icons  # for custom icons
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    restart: unless-stopped
+    restart: always
     networks:
       - frontend
       - backend
