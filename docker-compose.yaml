@@ -21,27 +21,6 @@ networks:
       driver: default
       config:
         - subnet: 10.0.2.0/24                     # Subnet for frontend services
-
-  unifi-network:                                  # Dedicated network for UniFi services
-    name: unifi-network
-    driver: bridge                                # Bridge network for same-host communication
-    attachable: true
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.0.3.0/24                     # Subnet for UniFi services
-
-  watchtower-network:                             # Network for Watchtower services
-    name: watchtower-network
-    driver: overlay
-    attachable: true
-    driver_opts:
-      encrypted: "true"                           # Encrypts traffic for Watchtower communication
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.0.5.0/24                     # Subnet for Watchtower
-
 # Run the command below to create a service for the portainer Agent
 # docker service create   --name portainer_agent   --network portainer-agent-network   --mode global   -e AGENT_CLUSTER_ADDR=tasks.portainer-agent   portainer/agent
 
@@ -60,7 +39,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Access Docker socket for updates
     networks:
-      - watchtower-network                        # Connect to dedicated Watchtower network
+      - frontend
+      - backend
     command: >
       --interval 300                              # Check for updates every 5 minutes
       --cleanup                                   # Clean up unused images
