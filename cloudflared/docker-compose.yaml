@@ -1,7 +1,8 @@
 networks:
   frontend:
     external: true
-  backend:                                        # Backend network for inter-service communication
+  backend:
+    # Backend network for inter-service communication
     external: true
   watchtower-network:
     external: true
@@ -31,7 +32,4 @@ services:
           cpus: '0.25'
           memory: 2048M
       restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+        condition: always
