@@ -2,7 +2,6 @@ networks:
   frontend:
     external: true
   backend:
-    # Backend network for inter-service communication
     external: true
   watchtower-network:
     external: true
@@ -10,26 +9,50 @@ networks:
 services:
   cloudflared:
     image: cloudflare/cloudflared:2024.2.1
-    restart: always
     networks:
       - frontend
       - backend
-    command: >
-      tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+
+    hostname: cloudflare-tunnel # Hostname for the Cloudflare Tunnel container
+
+    restart: unless-stopped # Restart the container unless manually stopped
+
+    # Logging configuration for Cloudflare Tunnel container
+    logging:
+      driver: "json-file" # Use the default json-file logging driver
+      options:
+        max-size: "100m" # Maximum log file size before rotation (100 MB)
+        max-file: "10" # Maximum number of log files to retain (10)
+
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     environment:
-      TZ: "${TZ:-UTC}"
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro # Synchronize time with the host
+    # The deploy section ensures there is a copy of the tunnel on each machine in the swarm
+    healthcheck:
+      test: [ "CMD", "cloudflared", "--version" ] # Check if cloudflared version command works
+      interval: 30s # Time between health check attempts
+      timeout: 10s # Time to wait for a response
+      retries: 3 # Number of retries before marking as unhealthy
+      start_period: 10s # Delay before health checks begin
+
+    # Container labels for additional metadata
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true" # Enable automatic updates with Watchtower
     deploy:
       mode: global
-      placement:
-        constraints:
-          - node.os == linux
+      # The resources section is used to limit the resources used by the tunnel
       resources:
-        reservations:
-          cpus: '0.10'
-          memory: 2048M
         limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
           cpus: '0.25'
-          memory: 2048M
+          memory: 256M
+      # Restart Policy of the service
+      # This should always be running on each machine in the swarm
       restart_policy:
-        condition: always
+        condition: any
+        delay: 5s
+        window: 120s
