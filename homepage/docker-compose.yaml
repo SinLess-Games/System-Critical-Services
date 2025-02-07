@@ -1,3 +1,6 @@
+#Use compose up not stack deplopy
+# There is a wierd bug where the service will not access the other services if you use stack deploy
+
 networks:
   frontend:
     external: true
