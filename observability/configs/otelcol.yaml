@@ -22,7 +22,7 @@ exporters:
       insecure: true
 
   prometheusremotewrite:
-    endpoint: http://mimir:9090/api/v1/push
+    endpoint: http://tasks.mimir:9090/api/v1/push
 
 extensions:
   health_check:
