@@ -1,3 +1,9 @@
+networks:
+  frontend:
+    external: true
+  backend: 
+    external: true
+
 services:
   prometheus:
     image: prom/prometheus
@@ -8,12 +14,10 @@ services:
     networks:
       - backend
       - frontend
-      - watchtower-network
     volumes:
       - ./prometheus:/etc/prometheus
     depends_on:
       - alertmanager
-      - mimir
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
     security_opt:
@@ -24,7 +28,6 @@ services:
     container_name: alertmanager
     networks:
       - backend
-      - watchtower-network
     ports:
       - "9093:9093"
     volumes:
@@ -35,13 +38,15 @@ services:
       - no-new-privileges:true
 
   alertmanager-discord-notifier:
-    image: ghcr.io/jsawatzky/alertmanager-discord:latest
+    image: rogerrum/alertmanager-discord:1.0.6
     container_name: alertmanager-discord-notifier
     networks:
       - backend
-      - watchtower-network
     environment:
-      - ADN_WEBHOOK=${DISCORD_WEBHOOK}
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - DISCORD_USERNAME=System Critical Services Alert
+      - DISCORD_AVATAR_URL=https://sinlessgamesllc.com/_next/image?url=%2Fimages%2F3.png&w=828&q=75
+      - VERBOSE=ON
     ports:
       - "9094:9094"
     security_opt:
