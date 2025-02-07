@@ -25,3 +25,12 @@ services:
     volumes:
       - influxdb2-data:/var/lib/influxdb2
       - ./etc:/etc/influxdb2
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+          
