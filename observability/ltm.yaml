@@ -1,7 +1,12 @@
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+
 services:
   loki:
     image: grafana/loki:latest
-    container_name: loki
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -12,7 +17,6 @@ services:
 
   tempo:
     image: grafana/tempo:latest
-    container_name: tempo
     ports:
       - "3200:3200"
     command: -config.file=/etc/tempo/local-config.yaml
@@ -23,7 +27,6 @@ services:
 
   mimir:
     image: grafana/mimir:latest
-    container_name: mimir
     ports:
       - "9009:9009"
     command: -config.file=/etc/mimir/local-config.yaml
@@ -32,4 +35,3 @@ services:
     networks:
       - backend
 
-  
