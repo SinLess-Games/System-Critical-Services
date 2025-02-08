@@ -10,17 +10,17 @@ scrape_configs:
 
   - job_name: 'alertmanager'
     static_configs:
-      - targets: ['alertmanager:9093']
+      - targets: ['tasks.alertmanager:9093']
   
   - job_name: 'cadvisor-prod-1'
     scrape_interval: 5s
     static_configs:
-      - targets: ['192.168.86.20:9101']
+      - targets: ['tasks.cadvisor:9101']
 
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ['alertmanager:9093']
+        - targets: ['tasks.alertmanager:9093']
 
 rule_files:
   - "/etc/prometheus/rules/*.yaml"
