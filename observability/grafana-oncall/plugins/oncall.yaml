@@ -7,4 +7,4 @@ apps:
     jsonData:
       stackId: 5
       orgId: 1
-      onCallApiUrl: http://tasks.grafana-oncall:8081
+      onCallApiUrl: http://tasks.engine:8081

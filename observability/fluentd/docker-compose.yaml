@@ -1,17 +1,21 @@
 networks:
   backend:
     external: true
+  frontend:
+    external: true
 
 services:
   fluentd:
-    image: fluent/fluentd:v1.16.3-1.0
+    build:
+      context: build/fluentd
+      dockerfile: Dockerfile
     ports:
       - "24224:24224"
       - "24224:24224/udp"
     networks:
       - backend
     volumes:
-      - ./fluent.conf:/fluentd/etc/fluent.conf:ro
+      - ./conf:/fluentd/etc
       - fluentd-buffer:/fluentd/buffer
     environment:
       - FLUENT_UID=0
@@ -20,6 +24,16 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  fluentd-ui:
+    build:
+      context: build/fluentd-ui
+      dockerfile: Dockerfile
+    ports:
+      - "9292:9292"
+    networks:
+      - frontend
+      - backend
 
 volumes:
   fluentd-buffer:
