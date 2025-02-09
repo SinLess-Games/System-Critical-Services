@@ -1,0 +1,21 @@
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+
+services:
+  watchtower:
+    image: containrrr/watchtower:latest # Use the latest Watchtower image
+    restart: always # Ensure container restarts if it stops
+    environment:
+      WATCHTOWER_API_TOKEN: ${WATCHTOWER_API_TOKEN}
+    security_opt:
+      - no-new-privileges=true # Restrict privilege escalation
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Access Docker socket for updates
+    networks:
+      - frontend
+      - backend
+    command: >
+      --interval 300                              # Check for updates every 5 minutes --cleanup                                   # Clean up unused images --http-api-metrics true                     # Enable HTTP API metrics --http-api-token ${WATCHTOWER_API_TOKEN}    # Secure API with token
