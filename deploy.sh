@@ -79,20 +79,50 @@ deploy_compose() {
     fi
 }
 
-# Deploy services
-# Ensure that the correct directories and compose files exist before deploying
+##--------------------------------------------------------------------##
+##                   DEPLOY SERVICES AND STACKS                       ##
+##--------------------------------------------------------------------##
+##                                                                    ##
+## Ensure the compose filepaths are correct before running the script ##
+##                                                                    ##
+##--------------------------------------------------------------------##
 
+# ----------------------------------------------------------------------
+# Management Services
+# ----------------------------------------------------------------------
+
+#
 # Deploy Portainer
-deploy_stack "Portainer" "portainer/docker-compose.yaml"
+deploy_stack "Portainer" "management/portainer/docker-compose.yaml"
 
-# Deploy Unifi network controller
-deploy_compose "Unifi" "unifi/docker-compose.yaml"
+#
+# Deploy Watchtower
+deploy_stack "Watchtower" "management/watchtower/docker-compose.yaml"
 
+#
 # Deploy Homepage
-deploy_compose "Homepage" "homepage/docker-compose.yaml"
+deploy_compose "Homepage" "management/homepage/docker-compose.yaml"
 
-# Deploy SinLess Games Website
-deploy_stack "SinLess-Games-LLC" "sinlessgamesllc/docker-compose.yaml"
+# ----------------------------------------------------------------------
+# Application Services
+# ----------------------------------------------------------------------
 
-# Deploy cAdvisor
-deploy_stack "cAdvisor" "cadvisor/docker-compose.yaml"
+#
+# Deploy SinLess Games website
+deploy_compose "SinLess Games" "applications/sinlessgamesllc/docker-compose.yaml"
+
+# ----------------------------------------------------------------------
+# Networking Services
+# ----------------------------------------------------------------------
+
+#
+# Deploy CloudflareD
+deploy_stack "CloudflareD" "networking/cloudflared/docker-compose.yaml"
+
+#
+# Deploy Unifi
+deploy_compose "Unifi Network Controller" "networking/unifi/docker-compose.yaml"
+
+# ----------------------------------------------------------------------
+# Observability Services
+# ----------------------------------------------------------------------
