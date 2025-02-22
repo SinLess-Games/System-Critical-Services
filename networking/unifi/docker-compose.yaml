@@ -34,7 +34,8 @@ services:
       - 5514:5514/udp # optional
     restart: unless-stopped
     depends_on:
-      - unifi-db
+      unifi-db:
+        condition: service_healthy
 
   unifi-db:
     image: mongo:3.6
@@ -44,3 +45,9 @@ services:
       - ./.data/mongo:/data/db
       - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongo", "--host", "localhost", "--eval", "db.runCommand('ping').ok"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
