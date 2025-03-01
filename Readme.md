@@ -32,6 +32,7 @@ This is a list of ports that is used and exposed
 | 9090   | Prometheus                       | TCP      |
 | 9093   | Alertmanager                     | TCP      |
 | 9094   | alertmanager-discord-notifier    | TCP      |
+| 9100   | Node Exporter                    | TCP      |
 | 9101   | cAdvisor                         | TCP      |
 | 9443   | Portainer                        | TCP      |
 | 10001  | Unifi Network Controller         | UDP      |
