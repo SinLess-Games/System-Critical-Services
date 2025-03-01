@@ -1,5 +1,7 @@
 networks:
-  unifi-network:
+  frontend:
+    external: true
+  backend:
     external: true
 
 x-unifi-environment: &unifi-environment
@@ -22,6 +24,9 @@ services:
     environment: *unifi-environment
     volumes:
       - ./.data/unifi:/config
+    networks:
+      - frontend
+      - backend
     ports:
       - 8443:8443
       - 3478:3478/udp
@@ -41,12 +46,14 @@ services:
     image: mongo:3.6
     container_name: unifi-db
     environment: *unifi-environment
+    networks:
+      - backend
     volumes:
       - ./.data/mongo:/data/db
       - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mongo", "--host", "localhost", "--eval", "db.runCommand('ping').ok"]
+      test: [ "CMD", "mongo", "--host", "localhost", "--eval", "db.runCommand('ping').ok" ]
       interval: 30s
       retries: 3
       start_period: 10s
