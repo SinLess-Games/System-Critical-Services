@@ -73,7 +73,7 @@ services:
           memory: 500m
           cpus: "0.5"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       timeout: 5s
       interval: 5s
       retries: 10
