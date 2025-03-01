@@ -1,0 +1,40 @@
+providers:
+  - name: "default"
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+
+  - name: "Node Exporter"
+    orgId: 1
+    folder: "/etc/grafana/provisioning/dashboards/node-exporter"
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+
+  - name: "Loki"
+    orgId: 1
+    folder: "/etc/grafana/provisioning/dashboards/loki"
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+
+  - name: "Pyroscope"
+    orgId: 1
+    folder: "/etc/grafana/provisioning/dashboards/pyroscope"
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+
+  - name: "Tempo"
+    orgId: 1
+    folder: "/etc/grafana/provisioning/dashboards/tempo"
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true

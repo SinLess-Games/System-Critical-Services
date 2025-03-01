@@ -1,0 +1,61 @@
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    editable: false
+    version: 1
+    uid: loki
+
+  - name: Mimir
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://mimir:9090/prometheus
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: false
+    apiVersion: 1
+    uid: tempo
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    basicAuth: false
+    isDefault: false
+    editable: true
+    version: 1
+    uid: prometheus
+
+  - name: Pyroscope
+    type: pyroscope
+    access: proxy
+    url: http://pyroscope:4040
+    basicAuth: false
+    isDefault: false
+    editable: false
+    version: 1
+    uid: pyroscope
+
+  - name: OpenTelemetry Collector
+    type: jaeger
+    access: proxy
+    url: http://opentelemetry-collector:14268
+    basicAuth: false
+    isDefault: false
+    editable: false
+    version: 1
+    uid: otel
