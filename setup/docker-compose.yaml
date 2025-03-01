@@ -2,26 +2,10 @@
 networks:
   backend:
     name: backend
-    driver: overlay # Overlay network spans multiple Docker nodes in a swarm
-    attachable: true # Allows standalone containers to connect to this network
-    driver_opts:
-      encrypted: "true" # Encrypts network traffic for added security
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.0.1.0/24 # Subnet for backend services
 
   frontend:
     # Frontend network for user-facing services
     name: frontend
-    driver: overlay
-    attachable: true
-    driver_opts:
-      encrypted: "false" # No encryption required for public access
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.0.2.0/24 # Subnet for frontend services
 
 services:
   setup:
@@ -33,6 +17,7 @@ services:
     restart: "no"
     networks:
       - backend
+      - frontend
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Grants access to Docker daemon
       - ./setup-scripts:/setup-scripts # Mounts local setup scripts
