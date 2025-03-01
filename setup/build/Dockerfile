@@ -28,7 +28,7 @@ RUN useradd -m -s /bin/bash deployer && echo "deployer ALL=(ALL) NOPASSWD:ALL" >
 WORKDIR /setup
 
 # Copy setup scripts or configurations (if needed)
-COPY setup-scripts/ /setup/
+COPY setup-scripts /setup
 
 # Set execute permissions on setup scripts
 RUN chmod +x /setup/*.sh
