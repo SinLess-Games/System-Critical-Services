@@ -4,7 +4,7 @@ datasources:
   - name: Loki
     type: loki
     access: proxy
-    url: http://tasks.loki:3100
+    url: http://loki:3100
     isDefault: false
     editable: false
     version: 1
@@ -14,7 +14,7 @@ datasources:
     type: prometheus
     access: proxy
     orgId: 1
-    url: http://tasks.mimir:9090/prometheus
+    url: http://mimir:9090/prometheus
     basicAuth: false
     isDefault: false
     version: 1
@@ -24,21 +24,20 @@ datasources:
     type: tempo
     access: proxy
     orgId: 1
-    url: http://tasks.tempo:3200
+    url: http://tempo:3200
     basicAuth: false
     isDefault: true
     version: 1
     editable: false
     apiVersion: 1
     uid: tempo
-  
+
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://tasks.prometheus:9090
+    url: http://prometheus:9090
     basicAuth: false
     isDefault: false
     editable: true
     version: 1
     uid: prometheus
-
