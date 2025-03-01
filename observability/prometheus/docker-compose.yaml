@@ -51,3 +51,13 @@ services:
       - "9094:9094"
     security_opt:
       - no-new-privileges:true
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    networks:
+      - backend
+    ports:
+      - "9100:9100"
+    security_opt:
+      - no-new-privileges:true
