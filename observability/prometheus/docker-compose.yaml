@@ -1,7 +1,7 @@
 networks:
   frontend:
     external: true
-  backend: 
+  backend:
     external: true
 
 services:
@@ -15,7 +15,7 @@ services:
       - backend
       - frontend
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./configs/prometheus:/etc/prometheus
     depends_on:
       - alertmanager
     command:
