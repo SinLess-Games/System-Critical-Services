@@ -18,4 +18,4 @@ services:
       - frontend
       - backend
     command: >
-      --interval 300                              # Check for updates every 5 minutes --cleanup                                   # Clean up unused images --http-api-metrics true                     # Enable HTTP API metrics --http-api-token ${WATCHTOWER_API_TOKEN}    # Secure API with token
+      --interval 300 --cleanup --http-api-metrics true --http-api-token ${WATCHTOWER_API_TOKEN}
