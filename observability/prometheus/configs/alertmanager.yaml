@@ -2,25 +2,24 @@ global:
   resolve_timeout: 5m
 
 route:
-  group_by: ['alertname']
+  group_by: ["alertname"]
   group_wait: 10s
   group_interval: 5m
   repeat_interval: 3h
-  receiver: 'discord-webhook'
+  receiver: "discord-webhook"
   routes:
     - match:
-        alertname: 'DiskSpaceLow'
-      receiver: 'discord-webhook'
+        alertname: "DiskSpaceLow"
+      receiver: "discord-webhook"
     - match:
-        alertname: 'HighMemoryUsage'
-      receiver: 'discord-webhook'
+        alertname: "HighMemoryUsage"
+      receiver: "discord-webhook"
 
 receivers:
-  - name: 'discord-webhook'
+  - name: "discord-webhook"
     webhook_configs:
-      - url: 'http://tasks.discord-notifier:9094'  # Replace with your discord notifier service URL
+      - url: "http://discord-notifier:9094" # Replace with your discord notifier service URL
         send_resolved: true
-
 # Optional: You can configure additional receivers for other notification services here
 
 # Optional: Add alert rules, for example, based on the alert name or severity

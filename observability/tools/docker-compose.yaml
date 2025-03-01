@@ -11,6 +11,7 @@ services:
       - backend
     volumes:
       - /var/log:/var/log
+      - ./configs/promtail.yaml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
 
   otelcol:
@@ -26,3 +27,21 @@ services:
     command: --config=/etc/otelcol/config.yaml
     volumes:
       - ./configs/otelcol.yaml:/etc/otelcol/config.yaml
+    
+  goblog:
+    image: mariomac/goblog:dev
+    networks:
+      - backend
+    ports:
+      # Exposes port 18843, forwarding it to container port 8443
+      - "18443:8443"
+
+  autoinstrumenter:
+    image: grafana/beyla:latest
+    pid: "service:goblog"
+    privileged: true
+    networks:
+      - backend
+    environment:
+      BEYLA_TRACE_PRINTER: text
+      BEYLA_OPEN_PORT: 8443
