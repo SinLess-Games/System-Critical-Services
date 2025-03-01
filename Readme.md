@@ -21,6 +21,7 @@ This is a list of ports that is used and exposed
 | 6789   | Unifi Network Controller         | TCP      |
 | 8000   | Portainer                        | TCP      |
 | 8080   | Unifi Network Controller         | TCP      |
+| 8081   | Grafana Oncall Engine            | TCP      |
 | 8086   | InfluxDB                         | TCP      |
 | 8443   | Unifi Network Controller         | TCP      |
 | 8843   | Unifi Network Controller         | TCP      |
