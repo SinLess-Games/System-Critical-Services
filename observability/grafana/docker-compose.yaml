@@ -57,8 +57,8 @@ services:
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
       DS_PROMETHEUS: http://prometheus:9090
     volumes:
-      - grafana-data:/etc/grafana
       - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml
+      - ./dashboards:/etc/grafana/provisioning/dashboards
       - ./configs/grafana.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     deploy:
       resources:
