@@ -27,6 +27,7 @@ query_range:
 
 limits_config:
   metric_aggregation_enabled: true
+  volume_enabled: true
 
 schema_config:
   configs:
