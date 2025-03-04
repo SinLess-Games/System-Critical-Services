@@ -15,7 +15,7 @@ services:
       # This should expose on port 3000 to the external world
       - 3000:3000
     environment:
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=info
       # Cloudflared
       - HOMEPAGE_VAR_CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
       - HOMEPAGE_VAR_CLOUDFLARE_TUNNEL_ID=${CLOUDFLARE_TUNNEL_ID}
