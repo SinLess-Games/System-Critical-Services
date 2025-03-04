@@ -173,3 +173,11 @@
     - LinkedIn:
         - abbr: LI
           href: https://linkedin.com/
+
+- School:
+    - Fullsail One: 
+        - abbr: FS1
+          href: https://one.fullsail.edu/
+    - Fullsail Class:
+        - abbr: FSC
+          href: https://online.fullsail.edu/

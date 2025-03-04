@@ -18,7 +18,7 @@ route:
 receivers:
   - name: "discord-webhook"
     webhook_configs:
-      - url: "http://discord-notifier:9094" # Replace with your discord notifier service URL
+      - url: "http://alertmanager-discord-notifier:9094" # Replace with your discord notifier service URL
         send_resolved: true
 # Optional: You can configure additional receivers for other notification services here
 

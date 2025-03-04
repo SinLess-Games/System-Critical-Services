@@ -1,24 +1,22 @@
 datasources:
+  # Prometheus data source configuration
+  - name: Prometheus
+    type: prometheus # Type of data source (Prometheus)
+    access: proxy # Access method (proxy)
+    url: http://prometheus:9090 # URL for accessing Prometheus
+    basicAuth: false # Basic authentication is not enabled
+    isDefault: false # Not the default data source
+    version: 1 # Version of the data source
+    uid: prometheus # Unique identifier for this data source
+
   # Loki data source configuration
   - name: Loki
     type: loki # Type of data source (Loki)
     access: proxy # Access method (proxy indicates Grafana will proxy the request)
     url: http://loki:3100 # URL for accessing Loki
     isDefault: false # Whether this is the default data source
-    editable: true # Whether the user can edit this data source in the UI
     version: 1 # Version of the data source
     uid: loki # Unique identifier for this data source
-
-  # Mimir data source configuration
-  - name: Mimir
-    type: prometheus # Type of data source (Prometheus-based Mimir)
-    access: proxy # Access method (proxy)
-    orgId: 1 # Organization ID
-    url: http://mimir:9009/prometheus # URL for accessing Mimir
-    basicAuth: false # Whether basic authentication is enabled
-    isDefault: false # This is not the default data source
-    version: 1 # Version of the data source
-    editable: true # The data source is not editable
 
   # Tempo data source configuration (used for tracing)
   - name: Tempo
@@ -32,17 +30,6 @@ datasources:
     editable: true # The data source is not editable
     apiVersion: 1 # API version of Tempo
     uid: tempo # Unique identifier for this data source
-
-  # Prometheus data source configuration
-  - name: Prometheus
-    type: prometheus # Type of data source (Prometheus)
-    access: proxy # Access method (proxy)
-    url: http://prometheus:9090 # URL for accessing Prometheus
-    basicAuth: false # Basic authentication is not enabled
-    isDefault: false # Not the default data source
-    editable: true # The data source is editable
-    version: 1 # Version of the data source
-    uid: prometheus # Unique identifier for this data source
 
   # Pyroscope data source configuration (for profiling)
   - name: Pyroscope
@@ -76,7 +63,6 @@ datasources:
     url: http://influxdb:8086/metrics # URL for accessing InfluxDB
     basicAuth: false # Basic authentication is not enabled
     isDefault: false # Not the default data source
-    editable: true # The data source is not editable
     version: 1 # Version of the data source
     uid: influxdb # Unique identifier for this data source
     jsonData:
@@ -84,3 +70,11 @@ datasources:
     secureJsonData:
       password: ${INFLUX_PASSWORD}
       user: ${INFLUX_USER}
+  
+  - name: Github Data
+    type: grafana-github-datasource
+    editable: true
+    jsonData:
+      selectedAuthType: personal-access-token
+    secureJsonData:
+      accessToken: ${GITHUB_ACCESS_TOKEN}

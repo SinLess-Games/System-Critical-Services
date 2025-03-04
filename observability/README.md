@@ -1,0 +1,1 @@
+Prometheus rules and configs used and modified from https://samber.github.io/awesome-prometheus-alerts
