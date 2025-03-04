@@ -1,0 +1,35 @@
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik-unifi-controller
+    hostname: traefik
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=traefik"
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8082:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml
+      - ./certs/:/var/traefik/certs/:rw
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
