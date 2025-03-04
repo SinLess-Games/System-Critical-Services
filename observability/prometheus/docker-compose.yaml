@@ -26,6 +26,7 @@ services:
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
+    restart: unless-stopped
     networks:
       - backend
     ports:
@@ -40,6 +41,7 @@ services:
   alertmanager-discord-notifier:
     image: rogerrum/alertmanager-discord:1.0.6
     container_name: alertmanager-discord-notifier
+    restart: unless-stopped
     networks:
       - backend
     environment:
@@ -72,3 +74,18 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro,rslave
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    volumes:
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    privileged: true
+    devices:
+      - "/dev/kmsg"
+    networks:
+      - backend
+    restart: unless-stopped
