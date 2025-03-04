@@ -6,24 +6,16 @@ networks:
 
 services:
   fluentd:
-    build:
-      context: build/fluentd
-      dockerfile: Dockerfile
+    build: ./fluentd
+    volumes:
+      - ./fluentd:/fluentd/etc
+    depends_on:
+      # Launch fluentd after that elasticsearch is ready to connect
+      elasticsearch:
+        condition: service_healthy
     ports:
       - "24224:24224"
       - "24224:24224/udp"
-    networks:
-      - backend
-    volumes:
-      - ./conf:/fluentd/etc
-      - fluentd-buffer:/fluentd/buffer
-    environment:
-      - FLUENT_UID=0
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   fluentd-ui:
     build:
