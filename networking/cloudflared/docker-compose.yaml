@@ -12,18 +12,20 @@ services:
     networks:
       - frontend
       - backend
-
-    hostname: cloudflare-tunnel # Hostname for the Cloudflare Tunnel container
-
-    restart: unless-stopped # Restart the container unless manually stopped
-
-    # Logging configuration for Cloudflare Tunnel container
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true" # Enable automatic updates with Watchtower
     logging:
-      driver: "json-file" # Use the default json-file logging driver
+      driver: loki
       options:
-        max-size: "100m" # Maximum log file size before rotation (100 MB)
-        max-file: "10" # Maximum number of log files to retain (10)
-
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=cloudflared"
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    hostname: cloudflare-tunnel # Hostname for the Cloudflare Tunnel container
+    restart: unless-stopped # Restart the container unless manually stopped
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     environment:
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
@@ -36,10 +38,6 @@ services:
       timeout: 10s # Time to wait for a response
       retries: 3 # Number of retries before marking as unhealthy
       start_period: 10s # Delay before health checks begin
-
-    # Container labels for additional metadata
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true" # Enable automatic updates with Watchtower
     deploy:
       mode: global
       # The resources section is used to limit the resources used by the tunnel
