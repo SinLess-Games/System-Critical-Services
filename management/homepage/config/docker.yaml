@@ -2,9 +2,9 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/docker/
 
-dev-machine:
-  socket: /var/run/docker.sock
+# dev-machine:
+#   socket: /var/run/docker.sock
 
-# docker-proxy: 
-#   host: dockerproxy
+# docker-proxy:
+#   host: homepage-dockerproxy
 #   port: 2375

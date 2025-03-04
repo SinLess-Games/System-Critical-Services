@@ -2,51 +2,16 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/services
 
-# - Infrastructure:
-    
-- Networking:
-    - pihole-lxc-01:
-        href: '{{HOMEPAGE_VAR_PIHOLE_URL}}/admin'
-        description: Pi-hole
-        icon: pi-hole.svg
-        siteMonitor: {{HOMEPAGE_VAR_PIHOLE_URL}}
-        widget:
-            type: pihole
-            url: {{HOMEPAGE_VAR_PIHOLE_URL}}
-            version: 5
-            key: {{HOMEPAGE_VAR_PIHOLE_KEY}}
-    - Unifi-Network-Controller:
-        href: {{HOMEPAGE_VAR_UNIFI_URL}}
-        description: ""
-        icon: unifi.svg
-        siteMonitor: {{HOMEPAGE_VAR_UNIFI_URL}}
-        widget:
-            type: unifi
-            url: {{HOMEPAGE_VAR_UNIFI_URL}}
-            username: {{HOMEPAGE_VAR_UNIFI_USER}}
-            password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
-
-# - Automation:
-
 - Monitoring:
-    - Portainer:
-        href: {{HOMEPAGE_VAR_PORTAINER_URL}}
-        icon: portainer.png
-        siteMonitor: {{HOMEPAGE_VAR_PORTAINER_URL}}
-        widget:
-            type: portainer
-            url: {{HOMEPAGE_VAR_PORTAINER_URL}}
-            env: 5
-            key: {{HOMEPAGE_VAR_PORTAINER_ACCESS_KEY}}
     - Grafana:
         href: {{HOMEPAGE_VAR_GRAFANA_URL}}
         icon: grafana.svg
         siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
         widget:
-            type: grafana
-            url: {{HOMEPAGE_VAR_GRAFANA_URL}}
-            username: {{HOMEPAGE_VAR_GRAFANA_USER}}
-            password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
+          type: grafana
+          url: {{HOMEPAGE_VAR_GRAFANA_URL}}
+          username: {{HOMEPAGE_VAR_GRAFANA_USER}}
+          password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
 
     ##################################################################################
     # Prometheus
@@ -56,8 +21,34 @@
         icon: prometheus.svg
         siteMonitor: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
         widget:
-            type: prometheus
-            url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
+          type: prometheus
+          url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
+
+# - Infrastructure:
+
+- Networking:
+    - Unifi-Network-Controller:
+        href: {{HOMEPAGE_VAR_UNIFI_URL}}
+        description: ""
+        icon: unifi.svg
+        siteMonitor: {{HOMEPAGE_VAR_UNIFI_URL}}
+        widget:
+          type: unifi
+          url: {{HOMEPAGE_VAR_UNIFI_URL}}
+          username: {{HOMEPAGE_VAR_UNIFI_USER}}
+          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
+
+- Cloudflare:
+    - Unifi-Controler-Tunnel:
+        description: ""
+        icon: cloudflare.svg
+        widget:
+            type: cloudflared
+            accountid: {{HOMEPAGE_VAR_CLOUDFLARE_ACCOUNT_ID}}
+            tunnelid: {{HOMEPAGE_VAR_CLOUDFLARE_TUNNEL_ID}}
+            key: {{HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN}}
+
+# - Automation:
 
 # - Security:
 

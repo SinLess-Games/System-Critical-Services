@@ -3,26 +3,26 @@
 # https://gethomepage.dev/configs/service-widgets
 
 - logo:
-    icon: https://sinlessgamesllc.com/_next/image?url=%2Fimages%2F3.png&w=640&q=75
+        icon: https://sinlessgamesllc.com/_next/image?url=%2Fimages%2F3.png&w=640&q=75
 
 - resources:
-    cpu: true
-    memory: true
-    disk: /
+        cpu: true
+        memory: true
+        disk: /
 
 - unifi_console:
-    url: {{HOMEPAGE_VAR_UNIFI_URL}}
-    username: {{HOMEPAGE_VAR_UNIFI_USER}}
-    password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
+        url: {{HOMEPAGE_VAR_UNIFI_URL}}
+        username: {{HOMEPAGE_VAR_UNIFI_USER}}
+        password: {{ HOMEPAGE_VAR_UNIFI_PASSWORD}}
 
 - search:
-    provider: [google, duckduckgo, brave]
-    target: _blank
-    focus: true # Optional, will set focus to the search bar on page load
-    showSearchSuggestions: true # Optional, will show search suggestions. Defaults to false
+        provider: [google]
+        target: _blank
+        focus: true # Optional, will set focus to the search bar on page load
+        showSearchSuggestions: true # Optional, will show search suggestions. Defaults to false
 
 - datetime:
-    text_size: xl
-    format:
-        timeStyle: short
-        hourCycle: h23
+        text_size: xl
+        format:
+              timeStyle: short
+              hourCycle: h23

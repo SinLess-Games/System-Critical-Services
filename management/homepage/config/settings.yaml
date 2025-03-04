@@ -34,6 +34,11 @@ layout:
     icon: mdi-network
     columns: 4
   
+  Cloudflare:
+    initiallyCollapsed: false
+    icon: mdi-cloud
+    columns: 4
+  
   Infrastructure:
     initiallyCollapsed: false
     icon: mdi-network
