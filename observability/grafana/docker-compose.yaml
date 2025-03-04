@@ -1,185 +1,115 @@
+# Docker Compose configuration for Grafana OnCall and related services.
+# This file defines networks, persistent volumes, shared environment variables,
+# custom configurations, and all the required services.
+################################################################################
+# NETWORKS
+################################################################################
 networks:
+  # 'backend' network is used for internal communication between services.
   backend:
-    external: true
+    external: true  # Assumes an externally created network named 'backend' exists.
+  # 'frontend' network is used to expose certain services to external clients.
   frontend:
-    external: true
+    external: true  # Assumes an externally created network named 'frontend' exists.
 
+################################################################################
+# VOLUMES
+################################################################################
 volumes:
+  # Volume for persisting Grafana data (e.g., dashboards, plugins).
   grafana-data:
-    driver: local
+    driver: local  # Use the local volume driver.
+  # Volume for persisting database data.
   dbdata:
-    driver: local
+    driver: local  # Use the local volume driver.
 
+################################################################################
+# SHARED ENVIRONMENT VARIABLES (YAML Anchor)
+################################################################################
+# This block is shared among several services (e.g., oncall engine, celery)
+# to keep environment configurations consistent.
 x-environment: &oncall-environment
   DATABASE_TYPE: mysql
   BROKER_TYPE: redis
-  BASE_URL: http://grafana-oncall-engine:8081 #URL to the oncall engine
+  # Base URL to access the OnCall engine.
+  BASE_URL: http://grafana-oncall-engine:8081
+  # Secret key for the application (set via external environment variable).
   SECRET_KEY: $GRAFANA_SECRET_KEY
+  # Enable or disable the Prometheus exporter feature; defaults to true.
   FEATURE_PROMETHEUS_EXPORTER_ENABLED: ${FEATURE_PROMETHEUS_EXPORTER_ENABLED:-true}
+  # Secret for Prometheus exporter; can be overridden.
   PROMETHEUS_EXPORTER_SECRET: ${PROMETHEUS_EXPORTER_SECRET:-}
+  # RabbitMQ credentials and connection details.
   RABBITMQ_USERNAME: "rabbitmq"
   RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
   RABBITMQ_HOST: "rabbitmq"
   RABBITMQ_PORT: "5672"
   RABBITMQ_DEFAULT_VHOST: "/"
+  # MySQL connection details.
   MYSQL_PASSWORD: $MYSQL_ROOT_PASSWORD
   MYSQL_DB_NAME: oncall_hobby
   MYSQL_USER: ${MYSQL_USER:-root}
   MYSQL_HOST: ${MYSQL_HOST:-grafana-db}
   MYSQL_PORT: 3306
+  # Redis connection URI.
   REDIS_URI: redis://redis:6379/0
+  # Django settings module used by the OnCall engine.
   DJANGO_SETTINGS_MODULE: settings.hobby
+  # Celery configuration for task processing.
   CELERY_WORKER_QUEUE: "default,critical,long,slack,telegram,webhook,retry,celery,grafana"
   CELERY_WORKER_CONCURRENCY: "1"
   CELERY_WORKER_MAX_TASKS_PER_CHILD: "100"
   CELERY_WORKER_SHUTDOWN_INTERVAL: "65m"
   CELERY_WORKER_BEAT_ENABLED: "True"
-  GRAFANA_API_URL: http://grafana:3000
+  # URL to access the Grafana API.
+  GRAFANA_API_URL: http://grafana.sinlessgamesllc.com
 
+################################################################################
+# CUSTOM CONFIGURATIONS
+################################################################################
 configs:
+  # Custom Grafana configuration file.
   grafana.ini:
     content: |
       [feature_toggles]
-      accessControlOnCall = false
+      accessControlOnCall = true
 
+################################################################################
+# SERVICES
+################################################################################
 services:
-
-  grafana-oncall-engine:
-    image: grafana/oncall:v1.15.0
-    container_name: grafana-oncall-engine
-    restart: always
-    ports:
-      - 8081:8080
-    command: sh -c "uwsgi --ini uwsgi.ini"
-    environment: *oncall-environment
-    networks:
-      - backend
-    volumes:
-      - ./.data/oncall:/var/lib/oncall
-    depends_on:
-      mysql:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  celery:
-    image: grafana/oncall:v1.15.0
-    restart: always
-    command: sh -c "./celery_with_exporter.sh"
-    environment: *oncall-environment
-    volumes:
-      - ./.data/oncall:/var/lib/oncall
-    networks:
-      - backend
-    depends_on:
-      mysql:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  oncall_db_migration:
-    image: grafana/oncall:v1.15.0
-    container_name: oncall_db_migration
-    command: python manage.py migrate --noinput
-    environment: *oncall-environment
-    networks:
-      - backend
-    volumes:
-      - ./.data/oncall:/var/lib/oncall
-    depends_on:
-      mysql:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  redis:
-    image: redis:7.0.15
-    container_name: redis
-    restart: always
-    networks:
-      - backend
-    expose:
-      - 6379
-    volumes:
-      - ./.data/redis:/data
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-          cpus: "0.5"
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      timeout: 5s
-      interval: 5s
-      retries: 10
-
-  rabbitmq:
-    image: "rabbitmq:3.12.0-management"
-    restart: always
-    hostname: rabbitmq
-    networks:
-      - backend
-    volumes:
-      - ./.data/rabbitmq:/var/lib/rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: "rabbitmq"
-      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
-      RABBITMQ_DEFAULT_VHOST: "/"
-    deploy:
-      resources:
-        limits:
-          memory: 1000m
-          cpus: "0.5"
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
-
-  mysql_to_create_grafana_db:
-    image: mysql:8.0.32
-    networks:
-      - backend
-    command: >-
-      bash -c "mysql -h ${MYSQL_HOST:-mysql} -uroot -p${MYSQL_ROOT_PASSWORD:?err}
-      -e 'CREATE DATABASE IF NOT EXISTS grafana CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'"
-    depends_on:
-      mysql:
-        condition: service_healthy
-  
+  ########################################
+  # MySQL Database Service for Grafana and OnCall
+  ########################################
   mysql:
     image: mysql:8.0.32
     container_name: grafana-db
+    # Set MySQL server character set to support Unicode.
     command: >-
       --character-set-server=utf8mb4
     restart: always
     networks:
-      - backend
+      - backend  # Internal communication network.
     volumes:
-      - ./.data/mysql:/var/lib/mysql
-      - ./configs/mysql-init:/docker-entrypoint-initdb.d  # Mount custom init scripts
+      - ./.data/mysql:/var/lib/mysql  # Persist MySQL data.
+      - ./configs/mysql-init:/docker-entrypoint-initdb.d  # Mount initialization scripts.
     environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: oncall_hobby
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD  # Root password from external environment.
+      MYSQL_DATABASE: oncall_hobby  # Default database for the OnCall service.
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$MYSQL_ROOT_PASSWORD"]
       timeout: 40s
-      retries: 10
+      retries: 10  # Allow up to 10 retries for health check.
 
+  ########################################
+  # Grafana Service for Visualization and Dashboards
+  ########################################
   grafana:
     image: "grafana/grafana:11.4.0"
     container_name: grafana
-    restart: always
+    restart: always  # Automatically restart the container if it stops.
+    ports:
+      - 3001:3000  # Map host port 3001 to container port 3000.
     depends_on:
       mysql:
         condition: service_healthy
@@ -190,8 +120,8 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - backend
-      - frontend
+      - backend  # Internal communications.
+      - frontend  # Exposed to external traffic.
     environment:
       SECRET_KEY: $GRAFANA_SECRET_KEY
       GF_DATABASE_TYPE: mysql
@@ -209,27 +139,35 @@ services:
       GF_MIMIR_URL: http://mimir:9009
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
       DS_PROMETHEUS: http://prometheus:9090
+      INFLUX_USER: ${INFLUX_USER:-admin}
+      INFLUX_PASSWORD: ${INFLUX_PASSWORD:-admin}
     configs:
+      # Apply the custom Grafana configuration file.
       - source: grafana.ini
         target: /etc/grafana/grafana.ini
     volumes:
-      - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml
-      - ./dashboards:/etc/grafana/provisioning/dashboards
-      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-      - ./configs/providers.yaml:/etc/grafana/provisioning/provisioning.yaml
-      - ./configs/grafana.yaml:/etc/grafana/grafana.yaml
+      - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml  # Provision the OnCall plugin.
+      - ./dashboards:/etc/grafana/provisioning/dashboards  # Mount dashboard definitions.
+      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml  # Data source provisioning.
+      - ./configs/providers.yaml:/etc/grafana/provisioning/provisioning.yaml  # Provisioning settings.
+      - ./configs/grafana.yaml:/etc/grafana/grafana.yaml  # Additional Grafana configuration.
     deploy:
       resources:
         limits:
-          memory: 500m
-          cpus: "0.5"
+          memory: 500m  # Memory limit for the Grafana container.
+          cpus: "0.5"   # CPU limit for the Grafana container.
   
+  ########################################
+  # Pyroscope Service for Application Profiling
+  ########################################
   pyroscope:
     image: grafana/pyroscope:latest
     container_name: pyroscope
-    restart: always
+    restart: always  # Ensure container restarts if it stops unexpectedly.
     networks:
-      - backend
+      - backend  # Use backend network for internal communication.
     environment:
+      # URL for the Pyroscope server (internal address).
       PYROSCOPE_SERVER: http://pyroscope:4040
+      # Application name as recognized by Pyroscope.
       PYROSCOPE_APPLICATION_NAME: grafana
