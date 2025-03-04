@@ -1,7 +1,3 @@
 apiVersion: 1
 
 datasources:
-  - name: "Mimir"
-    type: prometheus
-    access: proxy
-    url: "http://mimir:9009"

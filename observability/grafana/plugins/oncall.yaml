@@ -7,5 +7,5 @@ apps:
     jsonData:
       stackId: 5
       orgId: 1
-      onCallApiUrl: http://grafana-oncall-engine:8080
-      grafanaUrl: http://grafana:3000
+      onCallApiUrl: http://192.168.1.3:8081
+      grafanaUrl: http://grafana.sinlessgamesllc.com

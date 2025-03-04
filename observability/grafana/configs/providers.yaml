@@ -9,7 +9,7 @@ providers:
 
   - name: "Node Exporter"
     orgId: 1
-    folder: "/etc/grafana/provisioning/dashboards/node-exporter"
+    folder: "/etc/grafana/provisioning/dashboards/node-exporter/full.json"
     type: file
     disableDeletion: false
     editable: true
