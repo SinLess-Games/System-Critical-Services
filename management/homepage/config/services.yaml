@@ -24,7 +24,11 @@
           type: prometheus
           url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
 
-# - Infrastructure:
+- Infrastructure:
+    - InfluxDB:
+        href: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+        icon: influxdb.svg
+        siteMonitor: {{HOMEPAGE_VAR_INFLUXDB_URL}}
 
 - Networking:
     - Unifi-Network-Controller:
