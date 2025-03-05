@@ -47,6 +47,9 @@
     - Apple-Music:
         - icon: si-applemusic-#FA243C
           href: https://music.apple.com/
+    - F2 Movies:
+        - icon: f2movies.svg
+          href: https://f2movies.to/
     - FMHY-Piracy-Guide:
         - abbr: FMHY
           href: https://fmhy.net/videopiracyguide/
