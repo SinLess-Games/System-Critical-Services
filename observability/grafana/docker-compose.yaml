@@ -93,7 +93,7 @@ services:
   ########################################
   # MySQL Database Service for Grafana and OnCall
   ########################################
-  mysql:
+  grafana-db:
     image: mysql:8.0.32
     container_name: grafana-db
     # Set MySQL server character set to support Unicode.
@@ -123,7 +123,7 @@ services:
     ports:
       - 3001:3000  # Map host port 3001 to container port 3000.
     depends_on:
-      mysql:
+      grafana-db:
         condition: service_healthy
     networks:
       - backend  # Internal communications.
@@ -270,9 +270,9 @@ services:
       - backend
     restart: unless-stopped
     links:
-      - mysql
+      - grafana-db
     depends_on:
-      mysql:
+      grafana-db:
         condition: service_healthy
     configs:
       - source: my.cnf
