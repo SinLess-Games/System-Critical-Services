@@ -78,3 +78,16 @@ datasources:
       selectedAuthType: personal-access-token
     secureJsonData:
       accessToken: ${GITHUB_ACCESS_TOKEN}
+
+  - name: 'Grafana Database'
+    type: mysql
+    url: mysql:3306
+    user: root
+    jsonData:
+      database: grafana
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: ${MYSQL_ROOT_PASSWORD}
