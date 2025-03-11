@@ -60,6 +60,16 @@ providers:
     allowUiUpdates: true
     options:
       path: "/etc/grafana/provisioning/dashboards/databases/mysql.json"
+  
+  - name: Proxmox Dashboard
+    orgId: 1
+    folder: "System Critical Services"
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+    options:
+      path: "/etc/grafana/provisioning/dashboards/proxmox/dash.json"
 
   # - name: "Pyroscope"
   #   orgId: 1

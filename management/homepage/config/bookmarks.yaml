@@ -60,10 +60,10 @@
           href: https://github.com/
     - Personal-Github:
         - icon: si-github
-          href: https://github.com/Sinless777/repositories
+          href: https://github.com/Sinless777?tab=repositories
     - SinLess-Games-Github:
         - icon: si-github
-          href: https://github.com/Sinless-Games/repositories
+          href: https://github.com/orgs/SinLess-Games/repositories
     - SinLess-Games-Enterprise-Github:
         - icon: si-github
           href: https://github.com/enterprises/sinlessgamesllc
@@ -104,6 +104,18 @@
     - LinkedIn:
         - icon: linkedin.svg
           href: https://www.linkedin.com/
+    - Threads:
+        - abbr: TRD
+          href: https://www.threads.net/
+    - Instagram:
+        - abbr: INS
+          href:  https://instagram.com
+    - The Cage:
+        - abbr: TC
+          href: https://thecage.co/
+    - Tumblr:
+        - abbr: TMBR
+          href: https://www.tumblr.com/
 
 - AI-Stuff:
     - ChrushOn:
@@ -135,6 +147,11 @@
         - abbr: SD
           href: https://releases.moe/
 
+- Manga:
+  - Hentai2Read:
+      - abbr: H2R
+        href: https://hentai2read.com/
+
 - Work:
     - nuclino:
         - abbr: NUC
@@ -151,31 +168,6 @@
     - Google Drive:
         - icon: google-drive.svg
           href: https://drive.google.com/drive/home
-
-- Social:
-    - Threads:
-        - abbr: TRD
-          href: https://www.threads.net/
-    
-    - Facebook:
-        - abbr: FB
-          href: https://faceook.com
-
-    - Instagram:
-        - abbr: INS
-          href:  https://instagram.com
-    
-    - The Cage:
-        - abbr: TC
-          href: https://thecage.co/
-
-    - Tumblr:
-        - abbr: TMBR
-          href: https://www.tumblr.com/
-    
-    - LinkedIn:
-        - abbr: LI
-          href: https://linkedin.com/
 
 - School:
     - Fullsail One: 

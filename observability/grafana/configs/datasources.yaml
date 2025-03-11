@@ -5,7 +5,7 @@ datasources:
     access: proxy # Access method (proxy)
     url: http://prometheus:9090 # URL for accessing Prometheus
     basicAuth: false # Basic authentication is not enabled
-    isDefault: false # Not the default data source
+    isDefault: true # Not the default data source
     version: 1 # Version of the data source
     uid: prometheus # Unique identifier for this data source
 
@@ -14,7 +14,7 @@ datasources:
     type: loki # Type of data source (Loki)
     access: proxy # Access method (proxy indicates Grafana will proxy the request)
     url: http://loki:3100 # URL for accessing Loki
-    isDefault: false # Whether this is the default data source
+    isDefault: true # Whether this is the default data source
     version: 1 # Version of the data source
     uid: loki # Unique identifier for this data source
 
@@ -37,7 +37,7 @@ datasources:
     access: proxy # Access method (proxy)
     url: http://pyroscope:4040 # URL for accessing Pyroscope
     basicAuth: false # Basic authentication is not enabled
-    isDefault: false # Not the default data source
+    isDefault: true # Not the default data source
     editable: true # The data source is not editable
     version: 1 # Version of the data source
     uid: pyroscope # Unique identifier for this data source
@@ -48,7 +48,7 @@ datasources:
     access: proxy # Access method (proxy)
     url: http://opentelemetry-collector:14268 # URL for accessing the OpenTelemetry Collector
     basicAuth: false # Basic authentication is not enabled
-    isDefault: false # Not the default data source
+    isDefault: true # Not the default data source
     editable: true # The data source is not editable
     version: 1 # Version of the data source
     uid: otel # Unique identifier for this data source
@@ -60,16 +60,20 @@ datasources:
   - name: InfluxDB
     type: influxdb # Type of data source (InfluxDB)
     access: proxy # Access method (proxy)
-    url: http://influxdb:8086/metrics # URL for accessing InfluxDB
-    basicAuth: false # Basic authentication is not enabled
-    isDefault: false # Not the default data source
+    url: http://influxdb.sinlessgamesllc.com # URL for accessing InfluxDB
+    basicAuth: true # Basic authentication is not enabled
+    editable: true # The data source is not editable
+    isDefault: true # Not the default data source
     version: 1 # Version of the data source
     uid: influxdb # Unique identifier for this data source
     jsonData:
       timeInterval: "5s"
+      dbName: "proxmox"
+      httpHeaderName1: "Authorization"
     secureJsonData:
       password: ${INFLUX_PASSWORD}
       user: ${INFLUX_USER}
+      httpHeaderValue1: "Token ${INFLUX_TOKEN}"
   
   - name: Github Data
     type: grafana-github-datasource
@@ -83,6 +87,7 @@ datasources:
     type: mysql
     url: mysql:3306
     user: root
+    isDefault: true
     jsonData:
       database: grafana
       maxOpenConns: 100
@@ -91,3 +96,4 @@ datasources:
       connMaxLifetime: 14400
     secureJsonData:
       password: ${MYSQL_ROOT_PASSWORD}
+

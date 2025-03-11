@@ -29,6 +29,41 @@
         href: {{HOMEPAGE_VAR_INFLUXDB_URL}}
         icon: influxdb.svg
         siteMonitor: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+    - TailScale:
+        href: https://login.tailscale.com/admin/machines
+        icon: tailscale.svg
+        siteMonitor: https://login.tailscale.com/admin/machines
+    - PVE-01:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: https://192.168.1.8:8006
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-01
+    - PVE-02:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: https://192.168.1.10:8006
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-02
+    - PVE-03:
+    - PVE-PDS-PC:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: https://192.168.1.12:8006
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-pds-pc
 
 - Networking:
     - Unifi-Network-Controller:
@@ -59,3 +94,9 @@
 - Documentation:
     - Awesome-Prometheus-Rules:
         href: https://samber.github.io/awesome-prometheus-alerts/
+        icon: prometheus.svg
+        siteMonitor: https://samber.github.io/awesome-prometheus-alerts/
+    - Proxmox Helper SSvripts:
+        href: https://community-scripts.github.io/ProxmoxVE/
+        siteMonitor: https://community-scripts.github.io/ProxmoxVE/
+        icon: proxmox.svg

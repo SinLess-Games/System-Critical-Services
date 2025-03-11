@@ -33,8 +33,7 @@ services:
       - INFLUXDB_ORG=${INFLUX_ORG}
       - INFLUXDB_BUCKET=${INFLUX_BUCKET}
     volumes:
-      - influxdb2-data:/var/lib/influxdb2
-      - ./etc:/etc/influxdb2
+      - ./.data:/var/lib/influxdb2
     deploy:
       resources:
         limits:

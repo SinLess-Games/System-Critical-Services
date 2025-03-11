@@ -36,3 +36,7 @@ alerting:
 rule_files:
   - "/etc/prometheus/rules/*.yaml"
 # Additional configurations can be added here as needed
+
+
+
+
