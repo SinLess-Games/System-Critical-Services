@@ -22,17 +22,15 @@ This is a list of ports that is used and exposed externally
 | 5672   | RabbitMQ                         | TCP      |
 | 6379   | Redis                            | TCP      |
 | 6789   | Unifi Network Controller         | TCP      |
-| 8000   | Portainer                        | TCP      |
+| 8000   |                                  | TCP      |
 | 8080   | Unifi Network Controller         | TCP      |
-| 8081   | Grafana Oncall Engine            | TCP      |
+| 8081   | Power DNS Admin Panel            | TCP      |
 | 8082   | Traefik Dashboard                | TCP      |
 | 8086   | InfluxDB                         | TCP      |
 | 8443   | Unifi Network Controller         | TCP      |
 | 8843   | Unifi Network Controller         | TCP      |
 | 8880   | Unifi Network Controller         | TCP      |
 | 8888   | otelcol                          | TCP      |
-| 9000   | Portainer                        | TCP      |
-| 9001   | Portainer Agent                  | TCP      |
 | 9009   | Grafana Mimir                    | TCP      |
 | 9090   | Prometheus                       | TCP      |
 | 9093   | Alertmanager                     | TCP      |
