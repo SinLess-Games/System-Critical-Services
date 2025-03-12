@@ -1,41 +1,62 @@
 # System Critical Services
 
-This repository contains the configuration and management of critical services for the infrastructure of Sinless Games LLC. These services include authentication, database management, caching, and other essential components. The goal is to ensure high availability, scalability, and security of the critical services that support the organization’s systems.
+This repository contains the configuration and management of critical services for the infrastructure of Sinless Games LLC. These services support authentication, databases, caching, monitoring, logging, VPN, and more to ensure high availability, scalability, and security.
 
-| Port  | Service                                    | Protocol  |
-|-------|--------------------------------------------|-----------|
-| 1900  | Unifi Network Controller                   | UDP       |
-| 3000  | Homepage                                   | TCP       |
-| 3100  | Grafana Loki                               | TCP       |
-| 3200  | Grafana Tempo                              | TCP       |
-| 3306  | MySQL                                      | TCP       |
-| 3478  | Unifi Network Controller                   | UDP       |
-| 4040  | Grafana Pyroscope                          | TCP       |
-| 4317  | otelcol                                    | TCP       |
-| 4318  | otelcol                                    | TCP       |
-| 5300  | PDNS Recursor                              | TCP/UDP   |
-| 5353  | dnsdist                                    | TCP/UDP   |
-| 5514  | Unifi Network Controller                   | UDP       |
-| 5672  | RabbitMQ                                   | TCP       |
-| 6379  | Redis                                      | TCP       |
-| 6789  | Unifi Network Controller                   | TCP       |
-| 7443  | PDNS Admin Panel (HTTPS)                   | TCP       |
-| 8000  | (Service not specified)                    | TCP       |
-| 8080  | Unifi Network Controller                   | TCP       |
-| 8081  | PDNS Admin Panel (HTTP)                    | TCP       |
-| 8082  | Traefik Dashboard                          | TCP       |
-| 8086  | InfluxDB                                   | TCP       |
-| 8443  | Unifi Network Controller                   | TCP       |
-| 8843  | Unifi Network Controller                   | TCP       |
-| 8880  | Unifi Network Controller                   | TCP       |
-| 8888  | otelcol                                    | TCP       |
-| 9009  | Grafana Mimir                              | TCP       |
-| 9090  | Prometheus                                 | TCP       |
-| 9093  | Alertmanager                               | TCP       |
-| 9094  | alertmanager-discord-notifier              | TCP       |
-| 9100  | Node Exporter                              | TCP       |
-| 9104  | MySQL Exporter                             | TCP       |
-| 51820 | WireGuard VPN                              | UDP       |
+Below is a comprehensive list of the exposed ports in our system-critical-services repository, sorted from lowest to highest port number, along with a brief description of each service.
 
+| Port  | Service                                    | Protocol  | Description                                                                       |
+|-------|--------------------------------------------|-----------|-----------------------------------------------------------------------------------|
+| 1900  | Unifi Network Controller                   | UDP       | Used for device discovery (e.g., SSDP/UPnP) on the Unifi Controller.              |
+| 3000  | Homepage                                   | TCP       | Exposes the Homepage UI for internal or external access.                          |
+| 3100  | Grafana Loki                               | TCP       | Log aggregation service for collecting and visualizing logs.                      |
+| 3200  | Grafana Tempo                              | TCP       | Distributed tracing system for performance monitoring.                            |
+| 3306  | MySQL                                      | TCP       | Database service (MySQL) used by various critical applications.                   |
+| 3478  | Unifi Network Controller                   | UDP       | Commonly used for STUN or UDP-based communications by Unifi devices.              |
+| 4040  | Grafana Pyroscope                          | TCP       | Application profiling tool for performance diagnostics.                           |
+| 4317  | OpenTelemetry Collector (gRPC)             | TCP       | Receives gRPC traffic for distributed tracing (OpenTelemetry Collector).          |
+| 4318  | OpenTelemetry Collector (HTTP)             | TCP       | HTTP endpoint for the OpenTelemetry Collector.                                    |
+| 5300  | PDNS Recursor                              | TCP/UDP   | Provides DNS recursor functionality for internal DNS resolution.                  |
+| 5514  | Unifi Network Controller                   | UDP       | Used for syslog or similar UDP-based communications from Unifi devices.           |
+| 5672  | RabbitMQ                                   | TCP       | Message broker used by the system for asynchronous messaging.                     |
+| 6379  | Redis                                      | TCP       | In-memory data store used for caching and session management.                     |
+| 6789  | Unifi Network Controller                   | TCP       | Additional port for Unifi Controller services.                                    |
+| 7443  | PDNS Admin Panel (HTTPS)                   | TCP       | Secured web interface for managing PowerDNS (admin panel).                        |
+| 8000  | (Unspecified Service)                      | TCP       | Exposed port with no service defined. Reserved for future use.                    |
+| 8080  | Unifi Network Controller                   | TCP       | Primary web interface for the Unifi Controller.                                   |
+| 8081  | PDNS Admin Panel (HTTP)                    | TCP       | Non-secured HTTP access to the PDNS admin panel.                                  |
+| 8082  | Traefik Dashboard                          | TCP       | Dashboard for managing the Traefik reverse proxy.                                 |
+| 8086  | InfluxDB                                   | TCP       | HTTP API for the InfluxDB time-series database.                                   |
+| 8443  | Unifi Network Controller                   | TCP       | Secure (HTTPS) access to the Unifi Controller for management.                     |
+| 8843  | Unifi Network Controller                   | TCP       | Often used for guest portal or alternative access to the Unifi Controller.        |
+| 8880  | Unifi Network Controller                   | TCP       | Additional port for Unifi services (alternative web portal).                      |
+| 8888  | OpenTelemetry Collector                    | TCP       | Alternative or admin endpoint for the OpenTelemetry Collector.                    |
+| 9009  | Grafana Mimir                              | TCP       | Metrics storage backend for Grafana Mimir.                                        |
+| 9090  | Prometheus                                 | TCP       | Main Prometheus monitoring service endpoint.                                      |
+| 9093  | Alertmanager                               | TCP       | Service that manages and routes alerts generated by Prometheus.                   |
+| 9094  | Alertmanager Discord Notifier              | TCP       | Forwards alerts from Alertmanager to Discord via webhook notifications.           |
+| 9100  | Node Exporter                              | TCP       | Exposes hardware and OS metrics from nodes (servers) to Prometheus.               |
+| 9104  | MySQL Exporter                             | TCP       | Exposes MySQL database metrics to Prometheus.                                     |
+| 51820 | WireGuard VPN                              | TCP/UDP   | Provides VPN access through the WireGuard service for secure remote connectivity. |
+
+---
 
 ## Services Overview
+
+The repository is organized into several subdirectories, each containing configuration files and documentation for a specific set of services:
+
+- **[Management](management/README.md):**  
+  Contains services such as GitLab, databases (PostgreSQL, MySQL), and related management tools.
+
+- **[Networking](networking/README.md):**  
+  Contains configurations for DNS services (PowerDNS, dnsdist), VPN (WireGuard), load balancers (Traefik, Nginx), and network controllers (Unifi).
+
+- **[Observability](observability/README.md):**  
+  Contains configurations for monitoring and logging tools like Grafana, Prometheus, Loki, Tempo, and exporters.
+
+- **[Setup](setup/README.md):**  
+  Contains scripts and Dockerfiles for building and initializing the overall system.
+
+Each service is containerized using Docker Compose, and sensitive credentials are managed via `.env` files (or `.env.example` files for reference).  
+For more details about each service’s configuration and deployment, please refer to the corresponding README files in each subdirectory.
+
+

@@ -1,26 +1,27 @@
+# setup/docker-compose.yaml
+
 # Define Docker networks to segment and manage communication between services.
 networks:
   backend:
     name: backend
-
   frontend:
     # Frontend network for user-facing services
     name: frontend
 
 services:
   setup:
-    image: setup-image:latest # Replace with actual image name
+    image: setup-image:latest  # Replace with your actual image name if needed.
     build:
       context: ./build
       dockerfile: Dockerfile
     container_name: setup-container
-    restart: "no"
+    restart: "no"  # This container is intended to run once during setup.
     networks:
       - backend
       - frontend
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # Grants access to Docker daemon
-      - ./setup-scripts:/setup-scripts # Mounts local setup scripts
+      - /var/run/docker.sock:/var/run/docker.sock  # Grants access to Docker daemon.
+      - ./setup-scripts:/setup-scripts  # Mounts local setup scripts.
     environment:
-      - ENV=production # Set deployment environment
-    command: [ "/setup-scripts/setup.sh" ] # Executes the setup script
+      - ENV=production  # Set the deployment environment.
+    command: [ "/setup-scripts/setup.sh" ]  # Executes the setup script.

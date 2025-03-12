@@ -1,4 +1,5 @@
 #!/bin/bash
+# setup/build/setup-scripts/setup.sh
 
 # Logging functions
 log_info() {
@@ -21,7 +22,7 @@ fi
 
 log_info "Starting setup process..."
 
-# Update and install necessary packages
+# Update package lists and install required dependencies
 log_info "Updating package lists and installing required dependencies..."
 apt-get update && apt-get install -y \
     curl \
@@ -35,6 +36,43 @@ apt-get update && apt-get install -y \
     nano \
     vim \
     jq \
-    sudo
+    sudo \
+    docker-compose
 
-log_info "Setup completed successfully."
+# Check if Docker is installed
+if ! command -v docker &> /dev/null; then
+    log_error "Docker is not installed. Please install Docker first."
+    exit 1
+fi
+
+# Define directories containing docker-compose files
+compose_dirs=(
+    "management/gitlab"
+    "management/homepage"
+    "management/watchtower"
+    "networking/cloudflared"
+    "networking/powerdns"
+    "networking/proxmox-lb"
+    "networking/unifi"
+    "networking/wireguard"
+    "observability/grafana"
+    "observability/influx-db"
+)
+
+# Loop through each directory and bring up the Docker Compose stack
+for dir in "${compose_dirs[@]}"; do
+    if [ -f "$dir/docker-compose.yaml" ]; then
+        log_info "Processing docker-compose in $dir..."
+        if [ -f "$dir/.env" ]; then
+            log_info "Using environment file $dir/.env"
+            docker-compose -f "$dir/docker-compose.yaml" --env-file "$dir/.env" up -d
+        else
+            log_warning "No .env file found in $dir, proceeding without --env-file"
+            docker-compose -f "$dir/docker-compose.yaml" up -d
+        fi
+    else
+        log_warning "No docker-compose.yaml found in $dir, skipping..."
+    fi
+done
+
+log_info "Setup process completed successfully."

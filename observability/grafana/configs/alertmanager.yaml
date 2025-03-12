@@ -1,26 +1,76 @@
 global:
+  # How long to wait before marking an alert as resolved
   resolve_timeout: 5m
 
 route:
-  group_by: ["alertname"]
-  group_wait: 10s
-  group_interval: 5m
-  repeat_interval: 3h
+  # Default receiver for all alerts
   receiver: "discord-webhook"
+  # Group alerts by alertname and job to reduce notification noise
+  group_by: ["alertname", "job"]
+  # Wait 30s to group incoming alerts before sending the first notification
+  group_wait: 30s
+  # Wait 5 minutes between notifications for the same group
+  group_interval: 5m
+  # Repeat notifications for persistent alerts every 4 hours
+  repeat_interval: 4h
   routes:
+    # Route for DiskSpaceLow alerts
     - match:
         alertname: "DiskSpaceLow"
       receiver: "discord-webhook"
+      continue: false
+
+    # Route for HighMemoryUsage alerts
     - match:
         alertname: "HighMemoryUsage"
       receiver: "discord-webhook"
+      continue: false
+
+    # Route for Prometheus job-related alerts (example: PrometheusJobMissing)
+    - match:
+        alertname: "PrometheusJobMissing"
+      receiver: "discord-webhook"
+      continue: false
+
+    # Route for Prometheus target-related alerts (example: PrometheusTargetMissing)
+    - match:
+        alertname: "PrometheusTargetMissing"
+      receiver: "discord-webhook"
+      continue: false
+
+    # Route for any alert with a name that ends with "ReloadFailure"
+    - match_re:
+        alertname: ".*ReloadFailure$"
+      receiver: "discord-webhook"
+      continue: false
+
+    # Route for alerts containing "TooMany" in their alertname
+    - match_re:
+        alertname: ".*TooMany.*"
+      receiver: "discord-webhook"
+      continue: false
+
+    # Catch-all route for any critical alerts (if severity label is set to "critical")
+    - match:
+        severity: "critical"
+      receiver: "discord-webhook"
+      continue: false
+
+# Inhibit rules allow you to mute less critical alerts if a higher-priority alert is firing.
+inhibit_rules:
+  - source_match:
+      severity: "critical"
+    target_match:
+      severity: "warning"
+    # Inhibit if alerts share the same alertname and job
+    equal: ["alertname", "job"]
 
 receivers:
   - name: "discord-webhook"
     webhook_configs:
-      - url: "http://alertmanager-discord-notifier:9094" # Replace with your discord notifier service URL
+      - url: "http://alertmanager-discord-notifier:9094"  # Replace with your actual Discord notifier URL
         send_resolved: true
-# Optional: You can configure additional receivers for other notification services here
-
-# Optional: Add alert rules, for example, based on the alert name or severity
-# You can define the alert rules in a separate file, like alert_rules.yaml
+        # Optional: TLS configuration if your webhook endpoint uses self-signed certificates
+        http_config:
+          tls_config:
+            insecure_skip_verify: true

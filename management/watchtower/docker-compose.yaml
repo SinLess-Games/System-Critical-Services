@@ -1,3 +1,15 @@
+# Docker Compose configuration for Watchtower
+# -----------------------------------------------------------------------------
+# Watchtower monitors your running containers and automatically updates them
+# when new images are available. This configuration connects the Watchtower
+# container to two external networks ("frontend" and "backend") so that it can
+# interact with containers across your network.
+#
+# Environment variables are used to securely provide the API token used by
+# Watchtower's HTTP API.
+#
+# -----------------------------------------------------------------------------
+
 networks:
   backend:
     external: true

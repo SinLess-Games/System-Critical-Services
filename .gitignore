@@ -19,7 +19,6 @@ docker-compose.override.yaml
 docker-compose.*.backup
 
 # Ignore IDE/editor configurations and cache
-.vscode/
 .idea/
 *.swp
 *.bak

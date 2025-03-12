@@ -1,6 +1,16 @@
-# Use compose up not stack deplopy
-# There is a wierd bug where the service will not access the other services if you use stack deploy
-
+# Docker Compose configuration for the Homepage application
+# -----------------------------------------------------------------------------
+# NOTE:
+# • Use "docker compose up" (not "docker stack deploy") to run this file.
+#   There is a known bug in stack deploy that prevents inter-service communication.
+#
+# This configuration connects the Homepage container to two external networks:
+#  - "frontend": intended for public traffic.
+#  - "backend": for internal service communications.
+#
+# The container is configured to expose port 3000 to the external world.
+# Environment variables are used to inject credentials and URLs for external services.
+# -----------------------------------------------------------------------------
 networks:
   frontend:
     external: true
@@ -42,6 +52,10 @@ services:
       - HOMEPAGE_VAR_PROXMOX_PASSWORD=${HOMEPAGE_VAR_PROXMOX_PASSWORD}
       # PowerDNS
       - HOMEPAGE_VAR_POWERDNS_URL=${HOMEPAGE_VAR_POWERDNS_URL}
+      # Gitlab
+      - HOMEPAGE_VAR_GITLAB_URL=${HOMEPAGE_VAR_GITLAB_URL}
+      - HOMEPAGE_VAR_GITLAB_API_TOKEN=${HOMEPAGE_VAR_GITLAB_API_TOKEN}
+      - HOMEPAGE_VAR_GITLAB_USER_ID=${HOMEPAGE_VAR_GITLAB_USER_ID}
     volumes:
       - ./config:/app/config
       - ./images:/app/images # for custom background images
