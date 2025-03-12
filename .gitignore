@@ -9,6 +9,7 @@ traefik/.data
 **/.data/
 wireguard/config/
 networking/traefik/certs/
+networking/wireguard/config/
 
 # Ignore log files
 *.log
