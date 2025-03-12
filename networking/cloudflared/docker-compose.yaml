@@ -44,10 +44,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+          memory: 112M
       # Restart Policy of the service
       # This should always be running on each machine in the swarm
       restart_policy:
