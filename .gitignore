@@ -43,3 +43,5 @@ Thumbs.db
 .venv/
 __pycache__/
 *.pyc
+
+networking/wireguard/config/
