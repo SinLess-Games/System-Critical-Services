@@ -2,3 +2,6 @@
 	path = networking/powerdns
 	url = https://github.com/SinLess-Games/powerdns-for-docker.git
 
+[submodule "management/netbox"]
+	path = management/netbox
+	url = https://github.com/SinLess-Games/netbox-docker.git

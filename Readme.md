@@ -24,7 +24,7 @@ Below is a comprehensive list of the exposed ports in our system-critical-servic
 | 8000  | (Unspecified Service)                      | TCP       | Exposed port with no service defined. Reserved for future use.                    |
 | 8080  | Unifi Network Controller                   | TCP       | Primary web interface for the Unifi Controller.                                   |
 | 8081  | PDNS Admin Panel (HTTP)                    | TCP       | Non-secured HTTP access to the PDNS admin panel.                                  |
-| 8082  | Traefik Dashboard                          | TCP       | Dashboard for managing the Traefik reverse proxy.                                 |
+| 8082  | Netbox                                     | TCP       |                                                                                   |
 | 8086  | InfluxDB                                   | TCP       | HTTP API for the InfluxDB time-series database.                                   |
 | 8443  | Unifi Network Controller                   | TCP       | Secure (HTTPS) access to the Unifi Controller for management.                     |
 | 8843  | Unifi Network Controller                   | TCP       | Often used for guest portal or alternative access to the Unifi Controller.        |
