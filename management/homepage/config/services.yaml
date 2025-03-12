@@ -76,6 +76,10 @@
           url: {{HOMEPAGE_VAR_UNIFI_URL}}
           username: {{HOMEPAGE_VAR_UNIFI_USER}}
           password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
+    - PowerDNS:
+        href: {{HOMEPAGE_VAR_POWERDNS_URL}}
+        icon: powerdns.svg
+        siteMonitor: {{HOMEPAGE_VAR_POWERDNS_URL}}
 
 - Cloudflare:
     - Unifi-Controler-Tunnel:
