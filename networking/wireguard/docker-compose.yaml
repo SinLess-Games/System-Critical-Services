@@ -10,32 +10,17 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Denver
-
-      # WireGuard port
-      - SERVERPORT=51820
-
-      # Number of peers (clients) you want to auto-generate
-      - PEERS=1
-
-      # Automatically use upstream DNS or specify your own
-      - PEERDNS=auto
-
-      # WireGuard virtual subnet (tunnel IPs for clients & server)
-      - INTERNAL_SUBNET=10.8.0.0/24
-      
-      # Allowed
-      - ALOOWED_IPS=0.0.0.0/0, 192.168.86.0/24, 192.168.10.0/24
-
+      - PUID=1000                         # adjust to your user id
+      - PGID=1000                         # adjust to your group id
+      - TZ=Etc/UTC                        # set your time zone, e.g., America/New_York
+      - SERVERPORT=51820                  # UDP port for WireGuard
+      - PEERS=1                           # number of client configurations to generate
+      - PEERDNS=192.168.1.1                # DNS server for peers (could be your router's IP)
+      - INTERNAL_SUBNET=10.13.13.0/24       # VPN subnet (change as needed)
+      - ALLOWEDIPS=192.168.1.0/24           # route the entire internal network to VPN clients
     volumes:
-      - ./config:/config
-      - /lib/modules:/lib/modules
+      - ./config:/config                  # persistent config directory
+      - /lib/modules:/lib/modules        # required for loading kernel modules
     ports:
-      - 51820:51820/udp
+      - "51820:51820/udp"                 # expose WireGuard UDP port
     restart: unless-stopped
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-    networks:
-      - backend
