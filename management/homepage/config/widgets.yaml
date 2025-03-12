@@ -15,12 +15,6 @@
         username: {{HOMEPAGE_VAR_UNIFI_USER}}
         password: {{ HOMEPAGE_VAR_UNIFI_PASSWORD}}
 
-- search:
-        provider: [google]
-        target: _blank
-        focus: true # Optional, will set focus to the search bar on page load
-        showSearchSuggestions: true # Optional, will show search suggestions. Defaults to false
-
 - datetime:
         text_size: xl
         format:
