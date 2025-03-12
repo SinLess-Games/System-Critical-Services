@@ -50,16 +50,7 @@ providers:
     allowUiUpdates: true
     options:
       path: "/etc/grafana/provisioning/dashboards/databases/influxdb.json"
-  
-  - name: Mysql
-    orgId: 1
-    folder: "Databases"
-    type: file
-    disableDeletion: false
-    editable: true
-    allowUiUpdates: true
-    options:
-      path: "/etc/grafana/provisioning/dashboards/databases/mysql.json"
+
   
   - name: Proxmox Dashboard
     orgId: 1
@@ -70,6 +61,17 @@ providers:
     allowUiUpdates: true
     options:
       path: "/etc/grafana/provisioning/dashboards/proxmox/dash.json"
+  
+  - name: "Home"
+    orgId: 1
+    folder: "Home"
+    type: file
+    disableDeletion: true
+    editable: true
+    allowUiUpdates: true
+    options:
+      path: "/etc/grafana/provisioning/dashboards/home"
+      public: true
 
   # - name: "Pyroscope"
   #   orgId: 1

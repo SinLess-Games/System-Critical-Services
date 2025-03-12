@@ -14,6 +14,7 @@ services:
       - backend
     labels:
       - "com.centurylinklabs.watchtower.enable=true" # Enable automatic updates with Watchtower
+    restart: unless-stopped # Restart the container unless manually stopped
     logging:
       driver: loki
       options:
@@ -25,7 +26,6 @@ services:
         keep-file: "true"
         mode: "non-blocking"
     hostname: cloudflare-tunnel # Hostname for the Cloudflare Tunnel container
-    restart: unless-stopped # Restart the container unless manually stopped
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     environment:
       CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}

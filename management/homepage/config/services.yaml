@@ -16,13 +16,20 @@
     ##################################################################################
     # Prometheus
     ##################################################################################
-    - Swarm-Prometheus:
+    - Prometheus:
         href: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
         icon: prometheus.svg
         siteMonitor: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
         widget:
           type: prometheus
           url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
+    - AlertManager:
+        href: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
+        icon: alertmanager.svg
+        siteMonitor: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
+        widget:
+          type: alertmanager
+          url: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
 
 - Infrastructure:
     - InfluxDB:
