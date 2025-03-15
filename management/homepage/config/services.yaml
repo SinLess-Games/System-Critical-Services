@@ -12,10 +12,6 @@
           url: {{HOMEPAGE_VAR_GRAFANA_URL}}
           username: {{HOMEPAGE_VAR_GRAFANA_USER}}
           password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
-
-    ##################################################################################
-    # Prometheus
-    ##################################################################################
     - Prometheus:
         href: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
         icon: prometheus.svg
@@ -24,22 +20,11 @@
           type: prometheus
           url: {{HOMEPAGE_VAR_SWARM_PROMETHEUS_URL}}
     - AlertManager:
-        href: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
+        href: {{HOMEPAGE_VAR_ALERTMANAGER_URL}}
         icon: alertmanager.svg
-        siteMonitor: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
-        widget:
-          type: alertmanager
-          url: {{HOMEPAGE_VAR_SWARM_ALERTMANAGER_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_ALERTMANAGER_URL}}
 
 - Infrastructure:
-    - InfluxDB:
-        href: {{HOMEPAGE_VAR_INFLUXDB_URL}}
-        icon: influxdb.svg
-        siteMonitor: {{HOMEPAGE_VAR_INFLUXDB_URL}}
-    - TailScale:
-        href: https://login.tailscale.com/admin/machines
-        icon: tailscale.svg
-        siteMonitor: https://login.tailscale.com/admin/machines
     - PVE-01:
         href: {{HOMEPAGE_VAR_PROXMOX_URL}}
         icon: proxmox.svg
@@ -96,6 +81,10 @@
         href: {{HOMEPAGE_VAR_POWERDNS_URL}}
         icon: powerdns.svg
         siteMonitor: {{HOMEPAGE_VAR_POWERDNS_URL}}
+    - TailScale:
+        href: https://login.tailscale.com/admin/machines
+        icon: tailscale.svg
+        siteMonitor: https://login.tailscale.com/admin/machines
 
 - Cloudflare:
     - Unifi-Controler-Tunnel:
@@ -111,12 +100,13 @@
 
 # - Security:
 
-- Documentation:
-    - Awesome-Prometheus-Rules:
-        href: https://samber.github.io/awesome-prometheus-alerts/
-        icon: prometheus.svg
-        siteMonitor: https://samber.github.io/awesome-prometheus-alerts/
-    - Proxmox Helper SSvripts:
-        href: https://community-scripts.github.io/ProxmoxVE/
-        siteMonitor: https://community-scripts.github.io/ProxmoxVE/
-        icon: proxmox.svg
+- Databases:
+    - InfluxDB:
+        href: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+        icon: influxdb.svg
+        siteMonitor: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+    - MinIO:
+        href: {{HOMEPAGE_VAR_MINIO_URL}}
+        icon: minio.svg
+        siteMonitor: {{HOMEPAGE_VAR_MINIO_URL}}
+

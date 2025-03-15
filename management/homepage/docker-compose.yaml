@@ -58,6 +58,8 @@ services:
       - HOMEPAGE_VAR_GITLAB_USER_ID=${HOMEPAGE_VAR_GITLAB_USER_ID}
       # Alertmanager
       - HOMEPAGE_VAR_ALERTMANAGER_URL=${HOMEPAGE_VAR_ALERTMANAGER_URL}
+      # MinIO
+      - HOMEPAGE_VAR_MINIO_URL=${HOMEPAGE_VAR_MINIO_URL}
     volumes:
       - ./config:/app/config
       - ./images:/app/images # for custom background images

@@ -20,16 +20,37 @@ datasources:
 
   # Tempo data source configuration (used for tracing)
   - name: Tempo
-    type: tempo # Type of data source (Tempo for tracing)
-    access: proxy # Access method (proxy)
-    orgId: 1 # Organization ID
-    url: http://tempo:3200 # URL for accessing Tempo
-    basicAuth: false # Basic authentication is not enabled
-    isDefault: true # Tempo is the default data source
-    version: 1 # Version of the data source
-    editable: true # The data source is not editable
-    apiVersion: 1 # API version of Tempo
-    uid: tempo # Unique identifier for this data source
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200  # Ensure this points to your Tempo service
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: true
+    apiVersion: 1
+    uid: tempo
+    jsonData:
+      httpHeaderName1: "X-Scope-OrgID"
+      tracesToLogs:
+        datasourceUid: 'loki'  # Ensures integration with Loki logs
+        filterByTraceID: true
+        filterBySpanID: false
+        tags: ['job', 'instance', 'pod', 'namespace']
+      tracesToMetrics:
+        datasourceUid: 'prometheus'  # Integrate traces with Prometheus metrics
+        queries:
+          - name: 'Service Latency'
+            query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket{service="$service"}[5m])) by (le))'
+      nodeGraph:
+        enabled: true  # Enables the Node Graph visualization
+      traceQuery:
+        timeShiftEnabled: true
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '-1h'
+      spanBar:
+        type: 'Duration'
+
 
   # Pyroscope data source configuration (for profiling)
   - name: Pyroscope
@@ -44,18 +65,36 @@ datasources:
 
   # OpenTelemetry Collector data source configuration (for tracing)
   - name: OpenTelemetry Collector
-    type: jaeger # Type of data source (Jaeger, typically used for OpenTelemetry)
-    access: proxy # Access method (proxy)
-    url: http://opentelemetry-collector:14268 # URL for accessing the OpenTelemetry Collector
-    basicAuth: false # Basic authentication is not enabled
-    isDefault: true # Not the default data source
-    editable: true # The data source is not editable
-    version: 1 # Version of the data source
-    uid: otel # Unique identifier for this data source
+    type: jaeger
+    access: proxy
+    url: http://opentelemetry-collector:16686  # Change from 14268 to 16686 (Jaeger's UI and API port)
+    basicAuth: false
+    isDefault: false  # Set to false, as Tempo should be the main tracing backend
+    editable: true
+    version: 1
+    uid: otel
     jsonData:
-      httpHeaderName1: "X-Scope-OrgID"
+      tracesToLogs:
+        datasourceUid: 'loki'  # Enables linking traces to logs via Loki
+        filterByTraceID: true
+        filterBySpanID: false
+        tags: ['service.name', 'instance', 'namespace']
+      tracesToMetrics:
+        datasourceUid: 'prometheus'  # Enables linking traces to metrics via Prometheus
+        queries:
+          - name: 'Service Latency'
+            query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket{service="$service"}[5m])) by (le))'
+      nodeGraph:
+        enabled: true  # Enables visualization of trace dependencies
+      traceQuery:
+        timeShiftEnabled: true
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '-1h'
+      spanBar:
+        type: 'Duration'
     secureJsonData:
       httpHeaderValue1: "tenant1"
+
 
   - name: InfluxDB
     type: influxdb # Type of data source (InfluxDB)
@@ -68,12 +107,13 @@ datasources:
     uid: influxdb # Unique identifier for this data source
     jsonData:
       timeInterval: "5s"
-      dbName: "proxmox"
-      httpHeaderName1: "Authorization"
+      defaultBucket: "proxmox"
+      tlsSkipVerify: true
+      # httpHeaderName1: "Authorization"
     secureJsonData:
       password: ${INFLUX_PASSWORD}
       user: ${INFLUX_USER}
-      httpHeaderValue1: "Token ${INFLUX_TOKEN}"
+      token: "Token ${INFLUX_TOKEN}"
   
   - name: Github Data
     type: grafana-github-datasource

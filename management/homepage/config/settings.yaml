@@ -53,10 +53,6 @@ layout:
   # Automation:
   #   icon: fas fa-robot
 
-  Documentation:
-    initiallyCollapsed: false
-    style: row
-
 theme: dark
 color: slate
 

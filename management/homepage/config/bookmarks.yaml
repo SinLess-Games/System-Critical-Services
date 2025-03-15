@@ -54,6 +54,17 @@
         - abbr: FMHY
           href: https://fmhy.net/videopiracyguide/
 
+- Documentation:
+    - Awesome-Prometheus-Rules:
+        href: https://samber.github.io/awesome-prometheus-alerts/
+        icon: prometheus.svg
+        siteMonitor: https://samber.github.io/awesome-prometheus-alerts/
+    - Proxmox Helper SSvripts:
+        href: https://community-scripts.github.io/ProxmoxVE/
+        siteMonitor: https://community-scripts.github.io/ProxmoxVE/
+        icon: proxmox.svg
+
+
 - Developer:
     - Github:
         - icon: si-github

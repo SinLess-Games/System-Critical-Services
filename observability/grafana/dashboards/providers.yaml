@@ -21,19 +21,9 @@ providers:
     options:
       path: "/etc/grafana/provisioning/dashboards/loki"
 
-  - name: "Helix Ai Repository"
-    orgId: 1
-    folder: "Helix Ai"
-    type: file
-    disableDeletion: false
-    editable: true
-    allowUiUpdates: true
-    options:
-      path: "/etc/grafana/provisioning/dashboards/github/helix-ai.json"
-
   - name: "System Critical Services Repository"
     orgId: 1
-    folder: "System Critical Services"
+    folder: "Git Repos"
     type: file
     disableDeletion: false
     editable: true
