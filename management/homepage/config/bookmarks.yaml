@@ -54,17 +54,6 @@
         - abbr: FMHY
           href: https://fmhy.net/videopiracyguide/
 
-- Documentation:
-    - Awesome-Prometheus-Rules:
-        href: https://samber.github.io/awesome-prometheus-alerts/
-        icon: prometheus.svg
-        siteMonitor: https://samber.github.io/awesome-prometheus-alerts/
-    - Proxmox Helper SSvripts:
-        href: https://community-scripts.github.io/ProxmoxVE/
-        siteMonitor: https://community-scripts.github.io/ProxmoxVE/
-        icon: proxmox.svg
-
-
 - Developer:
     - Github:
         - icon: si-github
@@ -187,3 +176,16 @@
     - Fullsail Class:
         - abbr: FSC
           href: https://online.fullsail.edu/
+
+- Documentation:
+    - Awesome-Prometheus-Rules:
+        - href: https://samber.github.io/awesome-prometheus-alerts/
+          icon: prometheus.svg
+    - Proxmox Helper SSvripts:
+        - href: https://community-scripts.github.io/ProxmoxVE/
+          icon: proxmox.svg
+
+- Calculators:
+    - Desmos:
+        - icon: desmos.svg
+          href: https://www.desmos.com/calculator
