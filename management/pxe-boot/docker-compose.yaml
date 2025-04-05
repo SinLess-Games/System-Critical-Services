@@ -1,0 +1,22 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+
+services:
+  nginx-pxe-server:
+    image: nginx:alpine
+    container_name: nginx-pxe-server
+    restart: always
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ./configs:/etc/nginx/conf.d
+      - ./files:/var/www/html
+    ports:
+      - 9999:80
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.schedule=0 0 3 * * *

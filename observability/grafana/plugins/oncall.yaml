@@ -1,6 +1,6 @@
 enabled: true
 jsonData:
   stackId: 5
-  orgId: 100
+  orgId: 1
   onCallApiUrl: "http://oncall-engine:8084"
   grafanaUrl: "https://grafana.sinlessgamesllc.com"

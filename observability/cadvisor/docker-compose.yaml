@@ -1,0 +1,45 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  # 'backend' network is used for internal communication between services.
+  backend:
+    external: true  # Assumes an externally created network named 'backend' exists.
+  # 'frontend' network is used to expose certain services to external clients.
+  frontend:
+    external: true  # Assumes an externally created network named 'frontend' exists.
+
+services:
+  ########################################
+  # cAdvisor Service for Container Metrics
+  ########################################
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=cAdvisor" # Change this to your the name of your container
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    volumes:
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    privileged: true
+    devices:
+      - "/dev/kmsg"
+    networks:
+      - backend
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+          cpus: "0.5"

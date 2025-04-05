@@ -1,0 +1,56 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  # 'backend' network is used for internal communication between services.
+  backend:
+    external: true  # Assumes an externally created network named 'backend' exists.
+
+services:
+  ########################################
+  # goBlog Service
+  ########################################
+  goblog:
+    image: mariomac/goblog:dev
+    restart: unless-stopped
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=goBlog" # Change this to your the name of your container
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    networks:
+      - backend
+    ports:
+      # Exposes port 18843, forwarding it to container port 8443
+      - "18443:8443"
+
+  ########################################
+  # Beyla Service for autoinstrumentation
+  ########################################
+  autoinstrumenter:
+    image: grafana/beyla:latest
+    pid: "service:goblog"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=Grafana-Beyla" # Change this to your the name of your container
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - 18444:8444
+    networks:
+      - backend
+    environment:
+      BEYLA_TRACE_PRINTER: text
+      BEYLA_OPEN_PORT: 8443

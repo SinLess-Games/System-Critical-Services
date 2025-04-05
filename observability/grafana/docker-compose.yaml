@@ -5,90 +5,36 @@
 # NETWORKS
 ################################################################################
 networks:
-  # 'backend' network is used for internal communication between services.
   backend:
-    external: true  # Assumes an externally created network named 'backend' exists.
-  # 'frontend' network is used to expose certain services to external clients.
+    external: true
   frontend:
-    external: true  # Assumes an externally created network named 'frontend' exists.
+    external: true
 
 ################################################################################
 # VOLUMES
 ################################################################################
 volumes:
-  # Volume for persisting Grafana data (e.g., dashboards, plugins).
   grafana-data:
-    driver: local  # Use the local volume driver.
-  # Volume for persisting database data.
+    driver: local
   dbdata:
-    driver: local  # Use the local volume driver.
-
-################################################################################
-# SHARED ENVIRONMENT VARIABLES (YAML Anchor)
-################################################################################
-# This block is shared among several services (e.g., oncall engine, celery)
-# to keep environment configurations consistent.
-x-environment: &oncall-environment
-  BASE_URL: ${DOMAIN}
-  SECRET_KEY: ${SECRET_KEY}
-  
-  # RabbitMQ Settings
-  RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-rabbitmq}
-  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-  RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
-  RABBITMQ_PORT: "5672"
-  RABBITMQ_DEFAULT_VHOST: "/"
-
-  # MySQL Settings
-  MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-  MYSQL_DB_NAME: ${MYSQL_DB_NAME:-oncall_hobby}
-  MYSQL_USER: ${MYSQL_USER:-root}
-  MYSQL_HOST: ${MYSQL_HOST:-oncall-mysql}
-  MYSQL_PORT: ${MYSQL_PORT:-3306}
-
-  # Redis Settings
-  REDIS_URI: ${REDIS_URI:-redis://redis:6379/0}
-
-  # Django & Celery Settings
-  DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-settings.hobby}
-  CELERY_WORKER_QUEUE: ${CELERY_WORKER_QUEUE:-"default,critical,long,slack,telegram,webhook,retry,celery"}
-  CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-1}
-  CELERY_WORKER_MAX_TASKS_PER_CHILD: ${CELERY_WORKER_MAX_TASKS_PER_CHILD:-100}
-  CELERY_WORKER_SHUTDOWN_INTERVAL: ${CELERY_WORKER_SHUTDOWN_INTERVAL:-65m}
-  CELERY_WORKER_BEAT_ENABLED: ${CELERY_WORKER_BEAT_ENABLED:-True}
-
-  # Grafana API Settings
-  GRAFANA_API_URL: ${GRAFANA_API_URL:-http://grafana:3000}
-  GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
-
-  # Prometheus Exporter (Optional)
-  FEATURE_PROMETHEUS_EXPORTER_ENABLED: ${FEATURE_PROMETHEUS_EXPORTER_ENABLED:-true}
-  PROMETHEUS_EXPORTER_SECRET: ${PROMETHEUS_EXPORTER_SECRET}
-
-  DATABASE_TYPE: mysql
-  BROKER_TYPE: redis
+    driver: local
 
 ################################################################################
 # CUSTOM CONFIGURATIONS
 ################################################################################
 configs:
-  my.cnf:
-    content: |
-      [mysqld]
-      character-set-server=utf8mb4
-      collation-server=utf8mb4_unicode_ci
-      default-authentication-plugin=mysql_native_password
-      
-      [client]
-      user=${MYSQL_USER:-root}
-      password=${MYSQL_ROOT_PASSWORD}
-      host=${MYSQL_HOST:-mysql}
-
-  # Custom Grafana configuration file.
   grafana.ini:
     content: |
       [feature_toggles]
       accessControlOnCall = true
+
+  my-cnf:
+    content: |
+      [client]
+      user=exporter
+      password=exporter_password
+      host=192.168.1.3
+      port=3306
 
 ################################################################################
 # SERVICES
@@ -105,28 +51,29 @@ services:
       driver: loki
       options:
         loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana-DB" # Change this to your the name of your container
+        loki-external-labels: "container_name=Grafana-DB"
         loki-retries: 2
         loki-max-backoff: 800ms
         loki-timeout: 1s
         keep-file: "true"
         mode: "non-blocking"
-    # Set MySQL server character set to support Unicode.
     command: >-
       --character-set-server=utf8mb4
     restart: always
     networks:
-      - backend  # Internal communication network.
+      - backend
+    ports:
+      - 3306:3306
     volumes:
-      - ./.data/mysql:/var/lib/mysql  # Persist MySQL data.
-      - ./configs/mysql-init:/docker-entrypoint-initdb.d  # Mount initialization scripts.
+      - ./.data/mysql:/var/lib/mysql
+      - ./configs/mysql-init:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD  # Root password from external environment.
-      MYSQL_DATABASE: oncall_hobby  # Default database for the OnCall service.
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: oncall_hobby
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$MYSQL_ROOT_PASSWORD"]
       timeout: 40s
-      retries: 10  # Allow up to 10 retries for health check.
+      retries: 10
 
   ########################################
   # Grafana Service for Visualization and Dashboards
@@ -135,27 +82,25 @@ services:
     image: "grafana/grafana:11.4.0"
     container_name: grafana
     privileged: true
-    restart: always  # Automatically restart the container if it stops.
+    restart: always
     logging:
       driver: loki
       options:
         loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana" # Change this to your the name of your container
+        loki-external-labels: "container_name=Grafana"
         loki-retries: 2
         loki-max-backoff: 800ms
         loki-timeout: 1s
         keep-file: "true"
         mode: "non-blocking"
     ports:
-      - 3001:3000  # Map host port 3001 to container port 3000.
+      - 3001:3000
     depends_on:
       grafana-db:
         condition: service_healthy
-      loki:
-        condition: service_healthy
     networks:
-      - backend  # Internal communications.
-      - frontend  # Exposed to external traffic.
+      - backend
+      - frontend
     environment:
       SECRET_KEY: $GRAFANA_SECRET_KEY
       GF_DATABASE_TYPE: mysql
@@ -166,12 +111,8 @@ services:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
       GF_ONCALL_API_URL: http://oncall-engine:8084
-      #
-      # Plugins
-      #
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-oncall-app,grafana-pyroscope-app
       GF_INSTALL_PLUGINS: grafana-oncall-app,grafana-pyroscope-app,grafana-github-datasource,netdatacloud-netdata-datasource,grafana-clock-panel,grafana-exploretraces-app,grafana-llm-app
-
       GF_AUTH_MANAGED_SERVICE_ACCOUNTS_ENABLED: 'true'
       GF_LOKI_URL: http://loki:3100
       GF_TEMPO_URL: http://tempo:3200
@@ -182,195 +123,37 @@ services:
       INFLUX_TOKEN: ${INFLUX_TOKEN:?err}
       GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
     configs:
-      # Apply the custom Grafana configuration file.
       - source: grafana.ini
         target: /etc/grafana/grafana.ini
     volumes:
-      - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml  # Provision the OnCall plugin.
-      - ./dashboards:/etc/grafana/provisioning/dashboards  # Mount dashboard definitions.
-      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml  # Data source provisioning.
-      - ./configs/grafana.yaml:/etc/grafana/grafana.yaml  # Additional Grafana configuration.
+      - ./plugins/oncall.yaml:/etc/grafana/provisioning/plugins/oncall.yaml
+      - ./dashboards:/etc/grafana/provisioning/dashboards
+      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./configs/grafana.yaml:/etc/grafana/grafana.yaml
     deploy:
       resources:
         limits:
-          memory: 500m  # Memory limit for the Grafana container.
-          cpus: "0.5"   # CPU limit for the Grafana container.
-  
-  ########################################
-  # Pyroscope Service for Application Profiling
-  ########################################
-  pyroscope:
-    image: grafana/pyroscope:latest
-    container_name: pyroscope
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana-Pyroscope" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    restart: always  # Ensure container restarts if it stops unexpectedly.
-    networks:
-      - backend  # Use backend network for internal communication.
-    environment:
-      # URL for the Pyroscope server (internal address).
-      PYROSCOPE_SERVER: http://pyroscope:4040
-      # Application name as recognized by Pyroscope.
-      PYROSCOPE_APPLICATION_NAME: grafana
+          memory: 500m
+          cpus: "0.5"
 
   ########################################
-  # Loki Service for Log Aggregation
-  ########################################
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    hostname: loki
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - ./configs/loki.yaml:/etc/loki/local-config.yaml
-    networks:
-      - backend
-    healthcheck:
-      test: wget --quiet --tries=1 --output-document=- http://localhost:3100/ready | grep -q -w ready || exit 1
-      start_period: 20s
-      interval: 10s
-      timeout: 1s
-      retries: 12  # try for 2 minutes
-
-  ########################################
-  # Tempo Service for Distributed Tracing
-  ########################################
-  tempo:
-    image: grafana/tempo:latest
-    container_name: tempo
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana-Tempo" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    hostname: tempo
-    ports:
-      - "3200:3200"
-    command: -config.file=/etc/tempo/local-config.yaml
-    volumes:
-      - ./configs/tempo.yaml:/etc/tempo/local-config.yaml
-    networks:
-      - backend
-
-  ########################################
-  # OpenTelemetry Collector Service
-  ########################################
-  otelcol:
-    image: otel/opentelemetry-collector:0.104.0
-    restart: unless-stopped
-    container_name: otelcol
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=otelcol"  # Ensure this matches your container name
-        loki-retries: "3"  # Increased retries for reliability
-        loki-max-backoff: "1s"  # Adjusted backoff time
-        loki-timeout: "2s"  # Increased timeout to prevent log loss
-        mode: "non-blocking"
-    networks:
-      - backend
-    ports:
-      - 1888:1888 # pprof extension
-      - 8888:8888 # Prometheus metrics exposed by the Collector
-      - 8889:8889 # Prometheus exporter metrics
-      - 13133:13133 # health_check extension
-      - 4317:4317 # OTLP gRPC receiver
-      - 4318:4318 # OTLP http receiver
-      - 55679:55679 # zpages extension
-      - 14268:14268  # Jaeger Thrift
-      - 9464:9464  # Prometheus exporter
-    command: --config=/etc/otelcol/config.yaml
-    volumes:
-      - ./configs/otelcol.yaml:/etc/otelcol/config.yaml:ro  # Set as read-only to avoid accidental changes
-    depends_on:
-      - prometheus  # Ensures Prometheus starts before OpenTelemetry
-
-  
-  ########################################
-  # goBlog Service
-  ########################################
-  goblog:
-    image: mariomac/goblog:dev
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=goBlog" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    networks:
-      - backend
-    ports:
-      # Exposes port 18843, forwarding it to container port 8443
-      - "18443:8443"
-
-  ########################################
-  # Beyla Service for autoinstrumentation
-  ########################################
-  autoinstrumenter:
-    image: grafana/beyla:latest
-    pid: "service:goblog"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana-Beyla" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    restart: unless-stopped
-    privileged: true
-    ports:
-      - 18444:8444
-    networks:
-      - backend
-    environment:
-      BEYLA_TRACE_PRINTER: text
-      BEYLA_OPEN_PORT: 8443
-
-  ########################################
-  # Mysql Exporter Service
+  # MySQL Exporter Service
   ########################################
   grafana-mysql-exporter:
-    image: quay.io/prometheus/mysqld-exporter
+    image: prom/mysqld-exporter
     container_name: grafana-mysql-exporter
     hostname: grafana-mysql-exporter
+    command: ["--config.my-cnf=/home/mysqld_exporter/.my.cnf"]
     logging:
       driver: loki
       options:
         loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Grafana-MYSQL-Exporter" # Change this to your the name of your container
+        loki-external-labels: "container_name=Grafana-MYSQL-Exporter"
         loki-retries: 2
         loki-max-backoff: 800ms
         loki-timeout: 1s
         keep-file: "true"
         mode: "non-blocking"
-    environment:
-      - MYSQL_USER=${MYSQL_USER:-root}
-      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:?err}
-      - DATA_SOURCE_NAME=${MYSQL_USER:-root}:${MYSQL_ROOT_PASSWORD:?err}@(grafana-db:3306)/
     ports:
       - "9104:9104"
     networks:
@@ -382,324 +165,6 @@ services:
       grafana-db:
         condition: service_healthy
     configs:
-      - source: my.cnf
-        target: .my.cnf
-
-  ########################################
-  # Prometheus Service for Monitoring
-  ########################################
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    restart: always
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Prometheus" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    ports:
-      - 9090:9090
-    networks:
-      - backend
-      - frontend
-    volumes:
-      - ./configs/prometheus:/etc/prometheus
-    depends_on:
-      - alertmanager
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
-    security_opt:
-      - no-new-privileges:true
-
-  ########################################
-  # Alertmanager Service for Alerting
-  ########################################
-  alertmanager:
-    image: prom/alertmanager:latest
-    container_name: alertmanager
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Alertmanager" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    networks:
-      - backend
-    ports:
-      - "9093:9093"
-    volumes:
-      - ./configs/alertmanager.yaml:/etc/alertmanager/alertmanager.yml
-    depends_on:
-      - alertmanager-discord-notifier
-    security_opt:
-      - no-new-privileges:true
-
-  ########################################
-  # Alertmanager Discord Notifier Service
-  ########################################
-  alertmanager-discord-notifier:
-    image: rogerrum/alertmanager-discord:1.0.6
-    container_name: alertmanager-discord-notifier
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Alertmanager-Discord-Notifier" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    networks:
-      - backend
-    environment:
-      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
-      - DISCORD_USERNAME=System Critical Services Alert
-      - DISCORD_AVATAR_URL=https://sinlessgamesllc.com/_next/image?url=%2Fimages%2F3.png&w=828&q=75
-      - VERBOSE=ON
-    ports:
-      - "9094:9094"
-    security_opt:
-      - no-new-privileges:true
-
-  ########################################
-  # cAdvisor Service for Container Metrics
-  ########################################
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
-    container_name: cadvisor
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=cAdvisor" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    volumes:
-      - "/:/rootfs"
-      - "/var/run:/var/run"
-      - "/sys:/sys"
-      - "/var/lib/docker/:/var/lib/docker"
-      - "/dev/disk/:/dev/disk"
-    privileged: true
-    devices:
-      - "/dev/kmsg"
-    networks:
-      - backend
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-          cpus: "0.5"
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=node-exporter-prod-1" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    networks:
-      - backend
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 64m
-          cpus: "0.5"
-    ports:
-      - "9200:9100"
-    volumes:
-      - "/proc:/host/proc:ro"
-      - "/sys:/host/sys:ro"
-      - "/:/rootfs:ro"
-
-  oncall-engine:
-    image: grafana/oncall:v1.15.2
-    container_name: oncall-engine
-    restart: always
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=oncall-engine" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    ports:
-      - "8084:8080"
-    command: sh -c "uwsgi --ini uwsgi.ini"
-    environment: *oncall-environment
-    depends_on:
-      oncall-mysql:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./configs/uwsgi.ini:/etc/app/uwsgi.ini
-    networks:
-      - backend
-
-  celery:
-    image: grafana/oncall:v1.15.2
-    container_name: oncall-celery
-    restart: always
-    command: sh -c "./celery_with_exporter.sh"
-    environment: *oncall-environment
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Oncall-Celery" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    depends_on:
-      oncall-mysql:
-        condition: service_healthy
-      oncall_db_migration:
-        condition: service_completed_successfully
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - backend
-
-  oncall_db_migration:
-    image: grafana/oncall:v1.15.2
-    container_name: oncall-db-migration
-    command: python manage.py migrate --noinput
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=OnCall-DB-Migration" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    environment: *oncall-environment
-    depends_on:
-      oncall-mysql:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - backend
-
-  oncall-mysql:
-    # When spinning this up for the first time it may error out due to the healthcheck
-    # Just wait a few minutes and it should be up and running then run `docker-compose up -d` again
-    image: mysql:8.0.32
-    container_name: oncall-mysql
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=OnCall-mysql" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    command: >-
-      --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    restart: always
-    expose:
-      - 3306
-    volumes:
-      - ./.data/oncall-mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DB_NAME}
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  rabbitmq:
-    image: rabbitmq:3.8-management
-    container_name: oncall-rabbitmq
-    restart: always
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=Oncall-RabbitMQ" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    expose:
-      - 5672
-    ports:
-      - "15672:15672"
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  redis:
-    image: redis:6.2
-    restart: always
-    container_name: oncall-redis
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
-        loki-external-labels: "container_name=OnCall-Redis" # Change this to your the name of your container
-        loki-retries: 2
-        loki-max-backoff: 800ms
-        loki-timeout: 1s
-        keep-file: "true"
-        mode: "non-blocking"
-    expose:
-      - 6379
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - source: my-cnf
+        target: /home/mysqld_exporter/.my.cnf
+        mode: 0644

@@ -68,9 +68,5 @@ inhibit_rules:
 receivers:
   - name: "discord-webhook"
     webhook_configs:
-      - url: "http://alertmanager-discord-notifier:9094"  # Replace with your actual Discord notifier URL
-        send_resolved: true
-        # Optional: TLS configuration if your webhook endpoint uses self-signed certificates
-        http_config:
-          tls_config:
-            insecure_skip_verify: true
+      - url: "http://192.168.1.3:9094"  # Replace with your actual Discord notifier URL
+

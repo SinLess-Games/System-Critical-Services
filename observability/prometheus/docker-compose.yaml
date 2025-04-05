@@ -1,0 +1,40 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  # 'backend' network is used for internal communication between services.
+  backend:
+    external: true  # Assumes an externally created network named 'backend' exists.
+  # 'frontend' network is used to expose certain services to external clients.
+  frontend:
+    external: true  # Assumes an externally created network named 'frontend' exists.
+
+services:
+  ########################################
+  # Prometheus Service for Monitoring
+  ########################################
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container_name=Prometheus" # Change this to your the name of your container
+        loki-retries: 2
+        loki-max-backoff: 800ms
+        loki-timeout: 1s
+        keep-file: "true"
+        mode: "non-blocking"
+    ports:
+      - 9090:9090
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - ./configs:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    security_opt:
+      - no-new-privileges:true
