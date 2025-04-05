@@ -169,13 +169,22 @@
         - icon: google-drive.svg
           href: https://drive.google.com/drive/home
 
-- School:
+- School & Education:
     - Fullsail One: 
         - abbr: FS1
           href: https://one.fullsail.edu/
     - Fullsail Class:
         - abbr: FSC
           href: https://online.fullsail.edu/
+    - Software Downloads:
+        - abbr: FS-SD
+          href: https://portal.azure.com/?Microsoft_Azure_Education_correlationId=7ab8c7ce-1069-49da-92be-45f349b1e5ba#view/Microsoft_Azure_Education/EducationMenuBlade/~/overview
+    - Github Learning:
+        - abbr: GH-L
+          href: https://education.github.com/learner/learn
+    - Linkedin Learning:
+        - abbr: LL
+          href: https://www.linkedin.com/learning/
 
 - Documentation:
     - Awesome-Prometheus-Rules:
@@ -189,3 +198,6 @@
     - Desmos:
         - icon: desmos.svg
           href: https://www.desmos.com/calculator
+    - WolframAlpha:
+        - icon: wolframalpha.svg
+          href: https://www.wolframalpha.com/

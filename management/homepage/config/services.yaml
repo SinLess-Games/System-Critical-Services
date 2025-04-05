@@ -31,7 +31,7 @@
         siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
         widget:
           type: proxmox
-          url: https://192.168.1.8:8006
+          url: {{HOMEPAGE_VAR_PVE_01_URL}}
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
           node: pve-01
@@ -41,21 +41,30 @@
         siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
         widget:
           type: proxmox
-          url: https://192.168.1.10:8006
+          url: {{HOMEPAGE_VAR_PVE_02_URL}}
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
-          node: pve-02
+          node: PVE-02
     - PVE-03:
-    - PVE-PDS-PC:
         href: {{HOMEPAGE_VAR_PROXMOX_URL}}
         icon: proxmox.svg
         siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
         widget:
           type: proxmox
-          url: https://192.168.1.12:8006
+          url: {{HOMEPAGE_VAR_PVE_03_URL}}
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
-          node: pve-pds-pc
+          node: PVE-03
+    - PVE-04:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: {{HOMEPAGE_VAR_PVE_04_URL}}
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: PVE-04
     - Gitlab:
         href: {{HOMEPAGE_VAR_GITLAB_URL}}
         icon: gitlab.svg
@@ -81,6 +90,10 @@
         href: {{HOMEPAGE_VAR_POWERDNS_URL}}
         icon: powerdns.svg
         siteMonitor: {{HOMEPAGE_VAR_POWERDNS_URL}}
+    - Netbox:
+        href: {{HOMEPAGE_VAR_NETBOX_URL}}
+        icon: netbox.svg
+        siteMonitor: {{HOMEPAGE_VAR_NETBOX_URL}}
     - TailScale:
         href: https://login.tailscale.com/admin/machines
         icon: tailscale.svg
