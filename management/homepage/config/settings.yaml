@@ -32,12 +32,10 @@ layout:
   Networking:
     initiallyCollapsed: false
     icon: mdi-network
-    columns: 4
   
-  Cloudflare:
+  Cloudflare Tunnels:
     initiallyCollapsed: false
     icon: mdi-cloud
-    columns: 4
   
   Infrastructure:
     initiallyCollapsed: false

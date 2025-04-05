@@ -99,7 +99,7 @@
         icon: tailscale.svg
         siteMonitor: https://login.tailscale.com/admin/machines
 
-- Cloudflare:
+- Cloudflare Tunnels:
     - Unifi-Controler-Tunnel:
         description: ""
         icon: cloudflare.svg

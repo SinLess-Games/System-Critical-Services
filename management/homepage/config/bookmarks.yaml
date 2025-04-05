@@ -146,6 +146,12 @@
     - SeaDex:
         - abbr: SD
           href: https://releases.moe/
+    - Crunchyroll:
+        - abbr: CR 
+          href: https://crunchyroll.com
+    - Kiss Anime:
+        - abbr: KA 
+          href: https://kissanime.com.ru
 
 - Manga:
   - Hentai2Read:
