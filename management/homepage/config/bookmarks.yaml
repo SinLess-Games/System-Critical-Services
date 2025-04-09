@@ -191,6 +191,12 @@
     - Linkedin Learning:
         - abbr: LL
           href: https://www.linkedin.com/learning/
+    - HackTheBox:
+        - abbr: HTB
+          href: https://account.hackthebox.com/dashboard
+    - HackTheBox Academy:
+        - abbr: HTB-A
+          href: https://academy.hackthebox.com/dashboard
 
 - Documentation:
     - Awesome-Prometheus-Rules:
