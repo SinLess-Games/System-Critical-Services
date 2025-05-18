@@ -533,7 +533,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 9,
+        "w": 3,
         "x": 0,
         "y": 6
       },
@@ -632,8 +632,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 9,
-        "x": 9,
+        "w": 6,
+        "x": 3,
         "y": 6
       },
       "id": 10,
@@ -672,6 +672,80 @@
       "title": "Memory Break Down",
       "transparent": true,
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 9,
+        "y": 6
+      },
+      "id": 13,
+      "options": {
+        "bgColor": "transparent",
+        "clockType": "12 hour",
+        "countdownSettings": {
+          "endCountdownTime": "2025-04-11T05:15:39-06:00",
+          "endText": "00:00:00",
+          "invalidValueText": "invalid value",
+          "noValueText": "no value found",
+          "queryCalculation": "last",
+          "source": "input"
+        },
+        "countupSettings": {
+          "beginCountupTime": "2025-04-11T05:15:39-06:00",
+          "beginText": "00:00:00",
+          "invalidValueText": "invalid value",
+          "noValueText": "no value found",
+          "queryCalculation": "last",
+          "source": "input"
+        },
+        "dateSettings": {
+          "dateFormat": "YYYY-MM-DD",
+          "fontSize": "20px",
+          "fontWeight": "normal",
+          "locale": "",
+          "showDate": false
+        },
+        "descriptionSettings": {
+          "descriptionText": "",
+          "fontSize": "41",
+          "fontWeight": "normal",
+          "noValueText": "no description found",
+          "source": "none"
+        },
+        "fontMono": false,
+        "mode": "time",
+        "refresh": "sec",
+        "timeSettings": {
+          "fontSize": "100px",
+          "fontWeight": "normal"
+        },
+        "timezone": "",
+        "timezoneSettings": {
+          "fontSize": "12px",
+          "fontWeight": "normal",
+          "showTimezone": false,
+          "zoneFormat": "offsetAbbv"
+        }
+      },
+      "pluginVersion": "2.1.8",
+      "targets": [
+        {
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "grafana-clock-panel"
     },
     {
       "datasource": {
@@ -791,12 +865,14 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s"
+      "5s",
+      "10s",
+      "30s"
     ]
   },
   "timezone": "America/Denver",
   "title": "Home",
   "uid": "eeff9y81g1qf4d",
-  "version": 22,
+  "version": 24,
   "weekStart": ""
 }

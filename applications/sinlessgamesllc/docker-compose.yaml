@@ -7,7 +7,7 @@ networks:
 
 services:
   sinlessgames:
-    image: sinless777/sinlessgames-ui:1.0.89
+    image: sinless777/sinlessgames-ui:sha-c8ecadb
     networks:
       - frontend
       - backend

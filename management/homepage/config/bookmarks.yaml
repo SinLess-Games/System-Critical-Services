@@ -27,6 +27,9 @@
     - DigitalOcean:
         - icon: digital-ocean.svg
           href: https://www.digitalocean.com/
+    - Vercel:
+      - icon: vercel.svg
+        href: https://vercel.com/sinlessgames-projects/helix/
 
 - Entertainment:
     - YouTube:
