@@ -1,6 +1,38 @@
 ---
-# For configuration options and examples, please see:
+# For configuration options and examples, please 
+see:
 # https://gethomepage.dev/configs/bookmarks
+
+- Anime:
+    - H!anime:
+        - abbr: HA
+          href: https://hianime.to
+    - 9Anime:
+        - abbr: 9A
+          href: https://9animetv.to/
+    - Livechart:
+        - abbr: LC
+          href: https://www.livechart.me/
+    - Nyaa:
+        - abbr: nyaa
+          href: https://nyaa.si/
+    - SeaDex:
+        - abbr: SD
+          href: https://releases.moe/
+    - Crunchyroll:
+        - abbr: CR 
+          href: https://crunchyroll.com
+    - Kiss Anime:
+        - abbr: KA 
+          href: https://kissanime.com.ru
+
+- Calculators:
+    - Desmos:
+        - icon: desmos.svg
+          href: https://www.desmos.com/calculator
+    - WolframAlpha:
+        - icon: wolframalpha.svg
+          href: https://www.wolframalpha.com/
 
 - Cloud:
     - Cloudflare:
@@ -31,6 +63,34 @@
       - icon: vercel.svg
         href: https://vercel.com/sinlessgames-projects/helix/
 
+- Developer:
+    - Github:
+        - icon: si-github
+          href: https://github.com/
+    - Personal-Github:
+        - icon: si-github
+          href: https://github.com/Sinless777?tab=repositories
+    - SinLess-Games-Github:
+        - icon: si-github
+          href: https://github.com/orgs/SinLess-Games/repositories
+    - SinLess-Games-Enterprise-Github:
+        - icon: si-github
+          href: https://github.com/enterprises/sinlessgamesllc
+    - GitLab:
+        - icon: gitlab.svg
+          href: https://gitlab.sinlessgamesllc.com/
+    - Bitbucket:
+        - icon: si-bitbucket-#0052CC
+          href: https://bitbucket.org/
+
+- Documentation:
+    - Awesome-Prometheus-Rules:
+        - href: https://samber.github.io/awesome-prometheus-alerts/
+          icon: prometheus.svg
+    - Proxmox Helper SSvripts:
+        - href: https://community-scripts.github.io/ProxmoxVE/
+          icon: proxmox.svg
+
 - Entertainment:
     - YouTube:
         - icon: youtube.svg
@@ -57,119 +117,19 @@
         - abbr: FMHY
           href: https://fmhy.net/videopiracyguide/
 
-- Developer:
-    - Github:
-        - icon: si-github
-          href: https://github.com/
-    - Personal-Github:
-        - icon: si-github
-          href: https://github.com/Sinless777?tab=repositories
-    - SinLess-Games-Github:
-        - icon: si-github
-          href: https://github.com/orgs/SinLess-Games/repositories
-    - SinLess-Games-Enterprise-Github:
-        - icon: si-github
-          href: https://github.com/enterprises/sinlessgamesllc
-    - GitLab:
-        - icon: gitlab.svg
-          href: https://gitlab.sinlessgamesllc.com/
-    - Bitbucket:
-        - icon: si-bitbucket-#0052CC
-          href: https://bitbucket.org/
-
-- Tools:
-    - Docker:
-        - icon: docker.svg
-          href: https://www.docker.com/
-    - Kubernetes:
-        - icon: kubernetes.svg
-          href: https://kubernetes.io/
-    - Terraform:
-        - icon: terraform.svg
-          href: https://www.terraform.io/
-    - Ansible:
-        - icon: ansible.svg
-          href: https://www.ansible.com/
-    - Helm:
-        - icon: helm.svg
-          href: https://helm.sh/
-
-- Social:
-    - Reddit:
-        - icon: reddit.svg
-          href: https://reddit.com/
-    - Twitter:
-        - icon: twitter.svg
-          href: https://twitter.com/
-    - Facebook:
-        - icon: facebook.svg
-          href: https://facebook.com/
-    - LinkedIn:
-        - icon: linkedin.svg
-          href: https://www.linkedin.com/
-    - Threads:
-        - abbr: TRD
-          href: https://www.threads.net/
-    - Instagram:
-        - abbr: INS
-          href:  https://instagram.com
-    - The Cage:
-        - abbr: TC
-          href: https://thecage.co/
-    - Tumblr:
-        - abbr: TMBR
-          href: https://www.tumblr.com/
-
-- AI-Stuff:
-    - ChrushOn:
-        - abbr: CO
-          href: https://crushon.ai
-    
-    - OniiChat:
-        - abbr: OC
-          href: https://oniichat.com
-
-    - ChatGPT:
-        - abbr: CGPT
-          href: https://chatgpt.com
-
-- Anime:
-    - H!anime:
-        - abbr: HA
-          href: https://hianime.to
-    - 9Anime:
-        - abbr: 9A
-          href: https://9animetv.to/
-    - Livechart:
-        - abbr: LC
-          href: https://www.livechart.me/
-    - Nyaa:
-        - abbr: nyaa
-          href: https://nyaa.si/
-    - SeaDex:
-        - abbr: SD
-          href: https://releases.moe/
-    - Crunchyroll:
-        - abbr: CR 
-          href: https://crunchyroll.com
-    - Kiss Anime:
-        - abbr: KA 
-          href: https://kissanime.com.ru
-
 - Manga:
   - Hentai2Read:
       - abbr: H2R
         href: https://hentai2read.com/
 
-- Work:
-    - nuclino:
-        - abbr: NUC
-          href: https://app.nuclino.com/
-
-    - Stackoverflow:
-        - icon: si-stackoverflow-#F58025
-          href: https://stackoverflow.com
-
+- My Websites:
+  - Helix Ai:
+      - abbr: Helix
+        href: https://helixaibot.com/
+  - Sinless Games:
+      - abbr: SLG
+        href: https://sinlessgamesllc.com/
+  
 - Personal:
     - Onedrive:
         - icon: sh-microsoft-onedrive
@@ -201,18 +161,54 @@
         - abbr: HTB-A
           href: https://academy.hackthebox.com/dashboard
 
-- Documentation:
-    - Awesome-Prometheus-Rules:
-        - href: https://samber.github.io/awesome-prometheus-alerts/
-          icon: prometheus.svg
-    - Proxmox Helper SSvripts:
-        - href: https://community-scripts.github.io/ProxmoxVE/
-          icon: proxmox.svg
+- Social:
+    - Reddit:
+        - icon: reddit.svg
+          href: https://reddit.com/
+    - Twitter:
+        - icon: twitter.svg
+          href: https://twitter.com/
+    - Facebook:
+        - icon: facebook.svg
+          href: https://facebook.com/
+    - LinkedIn:
+        - icon: linkedin.svg
+          href: https://www.linkedin.com/
+    - Threads:
+        - abbr: TRD
+          href: https://www.threads.net/
+    - Instagram:
+        - abbr: INS
+          href:  https://instagram.com
+    - The Cage:
+        - abbr: TC
+          href: https://thecage.co/
+    - Tumblr:
+        - abbr: TMBR
+          href: https://www.tumblr.com/
 
-- Calculators:
-    - Desmos:
-        - icon: desmos.svg
-          href: https://www.desmos.com/calculator
-    - WolframAlpha:
-        - icon: wolframalpha.svg
-          href: https://www.wolframalpha.com/
+- Tools:
+    - Docker:
+        - icon: docker.svg
+          href: https://www.docker.com/
+    - Kubernetes:
+        - icon: kubernetes.svg
+          href: https://kubernetes.io/
+    - Terraform:
+        - icon: terraform.svg
+          href: https://www.terraform.io/
+    - Ansible:
+        - icon: ansible.svg
+          href: https://www.ansible.com/
+    - Helm:
+        - icon: helm.svg
+          href: https://helm.sh/
+
+- Work:
+    - nuclino:
+        - abbr: NUC
+          href: https://app.nuclino.com/
+
+    - Stackoverflow:
+        - icon: si-stackoverflow-#F58025
+          href: https://stackoverflow.com

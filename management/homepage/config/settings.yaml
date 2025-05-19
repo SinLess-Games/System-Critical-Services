@@ -18,6 +18,12 @@ groupsInitiallyCollapsed: true
 headerStyle: boxed
 
 layout:
+  Infrastructure:
+    initiallyCollapsed: false
+    icon: mdi-network
+    columns: 4
+    style: row
+
   Monitoring:
     icon: mdi-code-brackets
     style: row
@@ -37,10 +43,9 @@ layout:
     initiallyCollapsed: false
     icon: mdi-cloud
   
-  Infrastructure:
+  Databases:
     initiallyCollapsed: false
-    icon: mdi-network
-    columns: 4
+    icon: mdi-database
   
   # Development:
   #   icon: fas fa-code
