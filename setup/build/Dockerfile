@@ -1,5 +1,5 @@
-# Debian 11 base image
-FROM debian:11
+# Debian 12 base image (updated to a secure patch level)
+FROM debian:12-slim
 
 # Set environment variables to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,4 +35,4 @@ COPY setup-scripts /setup
 RUN chmod +x /setup/*.sh
 
 # Default command - adjust as needed for your use-case
-CMD ["/bin/bash"]
+CMD ["sudo", "-u", "deployer", "/setup/setup.sh"]

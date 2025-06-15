@@ -12,6 +12,9 @@ services:
     networks:
       - frontend
       - backend
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     labels:
       - "com.centurylinklabs.watchtower.enable=true" # Enable automatic updates with Watchtower
     restart: unless-stopped # Restart the container unless manually stopped

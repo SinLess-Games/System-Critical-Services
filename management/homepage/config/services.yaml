@@ -65,15 +65,6 @@
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
           node: pve-04
-    # - Gitlab:
-    #     href: {{HOMEPAGE_VAR_GITLAB_URL}}
-    #     icon: gitlab.svg
-    #     siteMonitor: {{HOMEPAGE_VAR_GITLAB_URL}}
-    #     widget:
-    #         type: gitlab
-    #         url: {{HOMEPAGE_VAR_GITLAB_URL}}
-    #         key: {{HOMEPAGE_VAR_GITLAB_API_TOKEN}}
-    #         user_id: {{HOMEPAGE_VAR_GITLAB_USER_ID}}
 
 - Networking:
     - Unifi-Network-Controller:

@@ -25,6 +25,17 @@
         - abbr: KA 
           href: https://kissanime.com.ru
 
+- Ai:
+  - ChatGPT:
+      - abbr: GPT
+        href: https://chat.openai.com/
+  - CrushOn AI:
+      - abbr: COAI
+        href: https://crushon.ai/
+  - OniiChat:
+      - abbr: OC
+        href: https://oniichat.com/
+
 - Calculators:
     - Desmos:
         - icon: desmos.svg

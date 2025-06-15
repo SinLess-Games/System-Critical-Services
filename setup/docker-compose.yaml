@@ -21,7 +21,6 @@ services:
       - frontend
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Grants access to Docker daemon.
-      - ./setup-scripts:/setup-scripts  # Mounts local setup scripts.
     environment:
       - ENV=production  # Set the deployment environment.
-    command: [ "/setup-scripts/setup.sh" ]  # Executes the setup script.
+    command: ["sudo", "-u", "deployer", "/setup/setup.sh"]  # Replace with actual setup commands.
