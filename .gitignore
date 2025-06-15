@@ -44,3 +44,4 @@ __pycache__/
 *.pyc
 
 networking/wireguard/config/
+networking/powerdns/.env
