@@ -31,7 +31,7 @@
         siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
         widget:
           type: proxmox
-          url: {{HOMEPAGE_VAR_PVE_01_URL}}
+          url: {{HOMEPAGE_VAR_PROXMOX_URL}}
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
           node: pve-01
@@ -55,16 +55,6 @@
           username: {{HOMEPAGE_VAR_PROXMOX_USER}}
           password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
           node: pve-03
-    - PVE-04:
-        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
-        icon: proxmox.svg
-        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
-        widget:
-          type: proxmox
-          url: {{HOMEPAGE_VAR_PROXMOX_URL}}
-          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
-          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
-          node: pve-04
 
 - Networking:
     - Unifi-Network-Controller:

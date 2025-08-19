@@ -147,6 +147,9 @@
     - Google Drive:
         - icon: google-drive.svg
           href: https://drive.google.com/drive/home
+    - Ascend Mental Health:
+        - abbr: AMH
+          href: https://www.valant.io/myio/AscendLLC/home
 
 - School & Education:
     - Fullsail One: 
@@ -164,6 +167,9 @@
     - Linkedin Learning:
         - abbr: LL
           href: https://www.linkedin.com/learning/
+    - Packt Classes Owned:
+        - abbr: PKT
+          href: https://subscription.packtpub.com/owned
     - HackTheBox:
         - abbr: HTB
           href: https://account.hackthebox.com/dashboard
