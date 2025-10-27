@@ -1,0 +1,14 @@
+# SOPS config for this repo
+# Encrypt any file named env.sops.yaml under secrets/
+creation_rules:
+  - path_regex: secrets/env\.sops\.yaml$
+    # choose the map key(s) to encrypt; here we encrypt whole DATA map
+    encrypted_regex: '^(DATA)$'
+    # age recipients (use your age public key)
+    age:
+      - "age1p3azc434jqnrx07aplxwtk3eefyd3f9sjxjs0vr7dxnjyljypcnsjrhjfr"
+    # gpg recipients (fingerprint of your new key)
+    pgp:
+      - "A25EFEA975F16297E0765B25AF60954F70D230D4"
+    # ensure YAML output
+    path_suffix: .yaml

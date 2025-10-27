@@ -1,0 +1,69 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    hostname: minio
+    restart: unless-stopped
+
+    networks:
+      - frontend
+      - backend
+      - management
+
+    ports:
+      - "9000:9000"         # S3 HTTP API
+      - "40275:40275"       # Console UI
+    env_file:
+      - ../../secrets/.env.runtime
+
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      # Optionally enable auto-encryption at rest:
+      # MINIO_KMS_SECRET_KEY: ${MINIO_KMS_SECRET_KEY}
+
+    command: server /data --console-address ":40275"
+
+    volumes:
+      - ./.data:/data:rw
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/minio/health/ready | grep -q 'ok' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    security_opt:
+      - no-new-privileges:true
+
+    labels:
+      # Homepage integration
+      - "homepage.group=Applications"
+      - "homepage.name=MinIO"
+      - "homepage.icon=minio"
+      - "homepage.description=Object storage (S3-compatible)"
+      - "homepage.href=https://minio.${LOCAL_DOMAIN}"
+      - "homepage.widget.type=container"
+      - "homepage.widget.container=minio"
+      # Watchtower enable
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=minio,service=applications,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"

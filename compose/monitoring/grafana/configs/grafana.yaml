@@ -1,0 +1,83 @@
+apiVersion: 1
+
+# =====================================================================
+# Grafana Core Configuration
+# =====================================================================
+# This file defines provisioning-level configuration overrides for Grafana.
+# It replaces database-provisioned settings for consistent, GitOps-style setup.
+# =====================================================================
+
+deleteDatasources: []
+deleteDashboards: []
+
+# ============================================================
+# Grafana Configuration (YAML equivalent of grafana.ini)
+# ============================================================
+# See: https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/
+# ============================================================
+config:
+  server:
+    domain: grafana.${ROOT_DOMAIN}
+    root_url: https://grafana.${ROOT_DOMAIN}
+    serve_from_sub_path: false
+  security:
+    admin_user: ${GF_SECURITY_ADMIN_USER:-admin}
+    admin_password: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+    cookie_secure: true
+    cookie_samesite: lax
+    allow_embedding: false
+  users:
+    allow_sign_up: false
+    default_theme: dark
+  auth:
+    disable_login_form: false
+    disable_signout_menu: false
+  auth.anonymous:
+    enabled: false  # Set true if you want a public dashboard view
+    org_role: Viewer
+  analytics:
+    reporting_enabled: false
+    check_for_updates: true
+  panels:
+    disable_sanitize_html: true
+  log:
+    mode: console
+    level: info
+  live:
+    max_connections: 100
+  snapshots:
+    external_enabled: false
+  news:
+    news_feed_enabled: false
+  feature_toggles:
+    enable: publicDashboards, traceqlEditor
+  unified_alerting:
+    enabled: true
+  alerting:
+    enabled: true
+  metrics:
+    enabled: true
+    basic_auth_username: metrics
+    basic_auth_password: ${GRAFANA_SECRET_KEY:-metrics_secret}
+    interval_seconds: 15
+  grafana_net:
+    url: https://grafana.net
+
+# ============================================================
+# Organization Defaults
+# ============================================================
+org:
+  name: SinLess Games Observability
+  role: Admin
+
+# ============================================================
+# Dashboards Provisioning
+# ============================================================
+dashboards:
+  - name: Core
+    orgId: 1
+    folder: "Infrastructure"
+    type: file
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards

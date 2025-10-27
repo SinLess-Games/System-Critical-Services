@@ -1,0 +1,64 @@
+# =====================================================================
+# Cloudflare Tunnel - Secure External Access via Cloudflare Zero Trust
+# =====================================================================
+# Routes all external HTTPS traffic through the tunnel and isolates it
+# to your Docker-managed frontend/backend networks.
+# =====================================================================
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:2025.8.0
+    container_name: cloudflared
+    hostname: cloudflare-tunnel
+
+    networks:
+      - frontend
+      - backend
+      - management
+
+    environment:
+      CLOUDFLARE_TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+      # Optionally restrict DNS resolvers Cloudflare uses internally
+      TUNNEL_DNS_ADDRESS: "1.1.1.1,8.8.8.8"
+
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+
+    restart: unless-stopped
+
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "org.label-schema.name=cloudflared"
+      - "org.label-schema.description=Cloudflare Tunnel Connector"
+      - "org.label-schema.schema-version=1.0"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=cloudflared,service=networking,env=prod"
+        loki-retries: "3"
+        loki-max-backoff: "1s"
+        loki-timeout: "2s"
+        mode: "non-blocking"
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/hostname:/etc/hostname:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "cloudflared --version >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

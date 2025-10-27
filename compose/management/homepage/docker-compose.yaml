@@ -1,0 +1,58 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v0.10.9
+    container_name: homepage
+    restart: unless-stopped
+
+    # No host port exposure; reach it via Traefik at https://home.${LOCAL_DOMAIN}
+    networks:
+      - frontend
+      - backend
+      - management
+
+    env_file:
+      - ../../secrets/.env.runtime
+
+    volumes:
+      - ./config:/app/config
+      - ./images:/app/images
+      - ./icons:/app/icons
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+    labels:
+      # ---- Traefik (internal) ----
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.${LOCAL_DOMAIN}`)"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls=true"
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+
+      # ---- Traefik (external) ----
+      - "traefik.http.routers.homepage-management.rule=Host(`homepage.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.homepage-management.entrypoints=websecure"
+      - "traefik.http.routers.homepage-management.tls=true"
+      - "traefik.http.services.homepage-management.loadbalancer.server.port=3000"
+
+      # ---- Watchtower ----
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=homepage,service=management,env=prod"
+        mode: "non-blocking"

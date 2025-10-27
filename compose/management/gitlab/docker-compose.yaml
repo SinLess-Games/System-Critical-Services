@@ -1,0 +1,283 @@
+version: "3.9"
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+volumes:
+  gitlab-config:
+  gitlab-data:
+  gitlab-logs:
+  postgres-data:
+  redis-data:
+  runner-config:
+  dind-storage:
+  registry-proxy-data:
+
+services:
+  ##############################################################################
+  # PostgreSQL (GitLab application DB)
+  ##############################################################################
+  postgres:
+    image: postgres:15-alpine
+    container_name: gitlab-postgres
+    restart: unless-stopped
+    networks: [backend, management]
+    environment:
+      POSTGRES_DB: ${GITLAB_DB_NAME:-gitlabhq_production}
+      POSTGRES_USER: ${GITLAB_DB_USER:-gitlab}
+      POSTGRES_PASSWORD: ${GITLAB_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${GITLAB_DB_USER:-gitlab} -d ${GITLAB_DB_NAME:-gitlabhq_production}"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "homepage.group=Management"
+      - "homepage.name=Postgres (GitLab)"
+      - "homepage.icon=postgres"
+      - "homepage.href=http://gitlab-postgres:5432"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab-postgres,service=management,env=prod"
+        mode: "non-blocking"
+
+  ##############################################################################
+  # Redis (GitLab queues / cache)
+  ##############################################################################
+  redis:
+    image: redis:7-alpine
+    container_name: gitlab-redis
+    restart: unless-stopped
+    networks: [backend, management]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "homepage.group=Management"
+      - "homepage.name=Redis (GitLab)"
+      - "homepage.icon=redis"
+      - "homepage.href=http://gitlab-redis:6379"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab-redis,service=management,env=prod"
+        mode: "non-blocking"
+
+  ##############################################################################
+  # RabbitMQ (for your CI jobs / internal queues; not used by GitLab core)
+  ##############################################################################
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: gitlab-rabbitmq
+    restart: unless-stopped
+    networks: [backend, management]
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-dev}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-devpass}
+    ports:
+      - "15672:15672"   # OPTIONAL mgmt UI (LAN); remove if you want internal-only
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "homepage.group=Management"
+      - "homepage.name=RabbitMQ"
+      - "homepage.icon=rabbitmq"
+      - "homepage.href=http://rabbitmq:15672"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab-rabbitmq,service=management,env=prod"
+        mode: "non-blocking"
+
+  ##############################################################################
+  # Docker Registry proxy (pull-through cache for Docker Hub)
+  ##############################################################################
+  docker-registry-proxy:
+    image: registry:2
+    container_name: docker-registry-proxy
+    restart: unless-stopped
+    networks: [backend, management]
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
+    volumes:
+      - registry-proxy-data:/var/lib/registry
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/v2/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "homepage.group=Management"
+      - "homepage.name=Docker Proxy Cache"
+      - "homepage.icon=docker"
+      - "homepage.href=http://docker-registry-proxy:5000/v2/_catalog"
+      - "com.centurylinklabs.watchtower.enable=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=docker-registry-proxy,service=management,env=prod"
+        mode: "non-blocking"
+
+  ##############################################################################
+  # GitLab (Omnibus)
+  ##############################################################################
+  gitlab:
+    image: gitlab/gitlab-ee:16.11.6-ee.0    # pin a recent stable; change to CE if you prefer
+    container_name: gitlab
+    hostname: gitlab.${ROOT_DOMAIN}
+    restart: unless-stopped
+    networks: [frontend, backend, management]
+    shm_size: "1g"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        from_file "/etc/gitlab/gitlab.rb"
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-data:/var/opt/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - ./configs/gitlab.rb:/etc/gitlab/gitlab.rb:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/-/readiness || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 5
+      start_period: 1m
+    labels:
+      # Traefik (external)
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab.rule=Host(`gitlab.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.gitlab.entrypoints=websecure"
+      - "traefik.http.routers.gitlab.tls=true"
+      - "traefik.http.services.gitlab.loadbalancer.server.port=8080"
+
+      # Homepage
+      - "homepage.group=Management"
+      - "homepage.name=GitLab"
+      - "homepage.icon=gitlab"
+      - "homepage.href=https://gitlab.${ROOT_DOMAIN}"
+
+      # Watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab,service=management,env=prod"
+        mode: "non-blocking"
+
+  ##############################################################################
+  # GitLab Runner + Docker-in-Docker
+  ##############################################################################
+  dind:
+    image: docker:24-dind
+    container_name: gitlab-dind
+    restart: unless-stopped
+    privileged: true
+    networks: [backend, management]
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+      DOCKER_DRIVER: overlay2
+      # Optional: point to your proxy cache to speed up pulls
+      # DOCKER_REGISTRY_MIRROR: http://docker-registry-proxy:5000
+    volumes:
+      - dind-storage:/var/lib/docker
+    healthcheck:
+      test: ["CMD-SHELL", "docker info >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab-dind,service=management,env=prod"
+        mode: "non-blocking"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: unless-stopped
+    networks: [backend, management]
+    depends_on:
+      dind:
+        condition: service_started
+      gitlab:
+        condition: service_started
+    volumes:
+      - runner-config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Set these in secrets/.env.sops.yaml -> .env.runtime
+      CI_SERVER_URL: https://gitlab.${ROOT_DOMAIN}
+      REGISTRATION_TOKEN: ${GITLAB_RUNNER_REGISTRATION_TOKEN}
+      RUNNER_EXECUTOR: docker
+      RUNNER_TAG_LIST: "docker,dind,linux"
+      RUNNER_NAME: "${HOSTNAME:-runner}-dind"
+      DOCKER_IMAGE: docker:24
+      DOCKER_PRIVILEGED: "true"
+      DOCKER_NETWORK_MODE: backend
+      DOCKER_TLS_CERTDIR: ""
+      # Optional: mirror
+      # DOCKER_REGISTRY_MIRROR: http://docker-registry-proxy:5000
+    command: >
+      bash -lc "
+        if ! gitlab-runner verify --delete; then echo 'Verifying runners…'; fi &&
+        if [ -n \"$REGISTRATION_TOKEN\" ]; then
+          gitlab-runner register --non-interactive
+            --url \"$CI_SERVER_URL\"
+            --registration-token \"$REGISTRATION_TOKEN\"
+            --executor \"$RUNNER_EXECUTOR\"
+            --description \"$RUNNER_NAME\"
+            --tag-list \"$RUNNER_TAG_LIST\"
+            --docker-image \"$DOCKER_IMAGE\"
+            --docker-privileged
+            --docker-network-mode \"$DOCKER_NETWORK_MODE\"
+            --docker-volumes /cache
+            --locked=false
+            --run-untagged=true
+            --access-level=not_protected
+        fi &&
+        gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner
+      "
+    labels:
+      - "homepage.group=Management"
+      - "homepage.name=GitLab Runner"
+      - "homepage.icon=gitlab"
+      - "homepage.href=https://gitlab.${ROOT_DOMAIN}/admin/runners"
+      - "com.centurylinklabs.watchtower.enable=true"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=gitlab-runner,service=management,env=prod"
+        mode: "non-blocking"

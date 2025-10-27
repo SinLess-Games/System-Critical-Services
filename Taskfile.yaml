@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  deps:
+    cmds:
+      - ./scripts/bash/install-deps.sh
+
+  render:
+    env:
+      SOPS_AGE_KEY_FILE: "{{.SOPS_AGE_KEY_FILE | default (env `HOME` | printf \"%s/.age.key\") }}"
+    cmds:
+      - sops -d secrets/env.sops.yaml > secrets/.env.runtime
+
+  up-all:
+    dir: compose
+    cmds:
+      - docker compose --profile all up -d
+  down-all:
+    dir: compose
+    cmds:
+      - docker compose --profile all down
+
+  pull:
+    dir: compose
+    cmds:
+      - docker compose pull
+
+  restart:
+    dir: compose
+    vars: { svc: { sh: "echo ${svc:-homepage}" } }
+    cmds:
+      - docker compose restart {{.svc}}
+
+  check:
+    cmds:
+      - docker compose -f compose/docker-compose.yaml config -q
+      - gitleaks detect --no-banner --redact || true
+
+  # all-in-one for a fresh box:
+  bootstrap:
+    cmds:
+      - task deps
+      - task up

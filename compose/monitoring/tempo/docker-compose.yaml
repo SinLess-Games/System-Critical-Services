@@ -1,0 +1,107 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  management:
+    external: true
+
+################################################################################
+# SERVICES
+################################################################################
+services:
+  ########################################
+  # Tempo — Distributed Tracing
+  ########################################
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: tempo
+    hostname: tempo
+    restart: unless-stopped
+
+    networks:
+      - backend
+      - management
+
+    ports:
+      - "3200:3200"  # Tempo UI / API (optional; internal access only)
+
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+
+    volumes:
+      - ./configs/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - ./data:/tmp/tempo
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3200/status | grep -q 'ready' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    labels:
+      - "homepage.group=Monitoring"
+      - "homepage.name=Tempo"
+      - "homepage.icon=tempo"
+      - "homepage.href=http://tempo:3200"
+      - "homepage.description=Distributed tracing"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=tempo,service=monitoring,env=prod"
+        loki-retries: "3"
+        loki-max-backoff: "1s"
+        loki-timeout: "2s"
+        mode: "non-blocking"
+
+  ########################################
+  # OpenTelemetry Collector
+  ########################################
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    container_name: otelcol
+    hostname: otelcol
+    restart: unless-stopped
+
+    networks:
+      - backend
+      - management
+
+    command: ["--config=/etc/otelcol/config.yaml"]
+
+    volumes:
+      - ./configs/otelcol.yaml:/etc/otelcol/config.yaml:ro
+
+    ports:
+      - 4317:4317   # OTLP gRPC
+      - 4318:4318   # OTLP HTTP
+      - 9464:9464   # Prometheus metrics exporter
+      - 13133:13133 # Health check
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:13133 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    labels:
+      - "homepage.group=Monitoring"
+      - "homepage.name=OpenTelemetry Collector"
+      - "homepage.icon=opentelemetry"
+      - "homepage.description=Metrics & trace ingestion"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=otelcol,service=monitoring,env=prod"
+        loki-retries: "3"
+        loki-max-backoff: "1s"
+        loki-timeout: "2s"
+        mode: "non-blocking"

@@ -1,3 +1,4 @@
 {
-    "editor.formatOnSave": false
+    "sops.configPath": "./secrets/.sops.yaml",
+    "sops.creationEnabled": true,
 }

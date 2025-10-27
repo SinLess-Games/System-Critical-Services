@@ -1,0 +1,129 @@
+apiVersion: 1
+
+datasources:
+  # ===================================================================
+  # PROMETHEUS (Primary metrics source)
+  # ===================================================================
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    version: 1
+    uid: prometheus
+
+  # ===================================================================
+  # LOKI (Logs)
+  # ===================================================================
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    editable: true
+    version: 1
+    uid: loki
+    jsonData:
+      derivedFields:
+        - name: "traceID"
+          matcherRegex: "traceID=(\\w+)"
+          url: "$${__value.raw}"
+          datasourceUid: "tempo"
+
+  # ===================================================================
+  # TEMPO (Distributed Tracing)
+  # ===================================================================
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: false
+    editable: true
+    version: 1
+    uid: tempo
+    jsonData:
+      tracesToLogs:
+        datasourceUid: "loki"
+        filterByTraceID: true
+        filterBySpanID: false
+        tags: ["job", "instance", "namespace"]
+      tracesToMetrics:
+        datasourceUid: "prometheus"
+        queries:
+          - name: "P95 Latency"
+            query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket{service="$service"}[5m])) by (le))'
+      nodeGraph:
+        enabled: true
+      traceQuery:
+        timeShiftEnabled: true
+      spanBar:
+        type: "Duration"
+
+  # ===================================================================
+  # PYROSCOPE (Profiling)
+  # ===================================================================
+  - name: Pyroscope
+    type: grafana-pyroscope-datasource
+    access: proxy
+    url: http://pyroscope:4040
+    isDefault: false
+    editable: true
+    version: 1
+    uid: pyroscope
+
+  # ===================================================================
+  # OPENTELEMETRY COLLECTOR (Trace/metrics aggregation)
+  # ===================================================================
+  - name: OpenTelemetry Collector
+    type: jaeger
+    access: proxy
+    url: http://otelcol:16686
+    isDefault: false
+    editable: true
+    version: 1
+    uid: otel
+    jsonData:
+      tracesToLogs:
+        datasourceUid: "loki"
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: "prometheus"
+        queries:
+          - name: "P95 Latency"
+            query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket{service="$service"}[5m])) by (le))'
+      nodeGraph:
+        enabled: true
+
+  # ===================================================================
+  # INFLUXDB (Time-series / infra telemetry)
+  # ===================================================================
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    basicAuth: false
+    isDefault: false
+    editable: true
+    version: 1
+    uid: influxdb
+    jsonData:
+      version: Flux
+      organization: ${INFLUX_ORG}
+      defaultBucket: ${INFLUX_BUCKET}
+      tlsSkipVerify: true
+    secureJsonData:
+      token: ${INFLUX_TOKEN}
+
+  # ===================================================================
+  # GITHUB DATA (For code & issues dashboards)
+  # ===================================================================
+  - name: GitHub
+    type: grafana-github-datasource
+    access: proxy
+    editable: true
+    uid: github
+    jsonData:
+      selectedAuthType: personal-access-token
+    secureJsonData:
+      accessToken: ${GITHUB_ACCESS_TOKEN}

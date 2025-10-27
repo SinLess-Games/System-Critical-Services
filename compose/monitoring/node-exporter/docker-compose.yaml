@@ -1,0 +1,68 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  management:
+    external: true
+
+################################################################################
+# SERVICES
+################################################################################
+services:
+  ########################################
+  # Node Exporter — Host Metrics
+  ########################################
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    hostname: node-exporter
+    restart: unless-stopped
+
+    networks:
+      - backend
+      - management
+
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--web.listen-address=:9100"
+
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9100/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    labels:
+      # Homepage integration
+      - "homepage.group=Monitoring"
+      - "homepage.name=Node Exporter"
+      - "homepage.icon=server"
+      - "homepage.description=Host metrics exporter"
+      - "homepage.href=http://node-exporter:9100"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=node-exporter,service=monitoring,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"

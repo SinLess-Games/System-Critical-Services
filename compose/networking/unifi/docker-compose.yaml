@@ -1,0 +1,131 @@
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+# Shared environment block (kept for clarity)
+x-unifi-environment: &unifi-environment
+  - PUID=${PUID:-1000}
+  - PGID=${PGID:-1000}
+  - TZ=${TZ:-America/Denver}
+  - MONGO_USER=${MONGO_USER}
+  - MONGO_PASS=${MONGO_PASS}
+  - MONGO_HOST=unifi-db
+  - MONGO_PORT=27017
+  - MONGO_DBNAME=unifi
+  - MONGO_AUTHSOURCE=admin
+  - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+  - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+services:
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi-network-application
+    restart: unless-stopped
+
+    # Use env file so secrets come from sops-decrypted runtime
+    env_file:
+      - ../../secrets/.env.runtime
+    environment: *unifi-environment
+
+    volumes:
+      - ./.data/unifi:/config
+
+    # UniFi requires these host ports for adoption & inform
+    ports:
+      - "8443:8443"          # Controller HTTPS UI / API
+      - "3478:3478/udp"      # STUN
+      - "10001:10001/udp"    # AP discovery
+      - "8080:8080"          # Inform (device comms)
+      # Optional extras you can enable if needed:
+      # - "1900:1900/udp"   # UPnP (port conflicts common)
+      # - "8843:8843"       # HTTPS portal redirect
+      # - "8880:8880"       # HTTP portal redirect
+      # - "6789:6789"       # Speed test
+      # - "5514:5514/udp"   # Syslog
+
+    networks:
+      - frontend
+      - backend
+      - management
+
+    depends_on:
+      unifi-db:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- https://localhost:8443/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+      start_period: 30s
+
+    labels:
+      # Homepage auto-discovery
+      - "homepage.group=Networking"
+      - "homepage.name=UniFi Controller"
+      - "homepage.icon=unifi"
+      - "homepage.description=UniFi Network Application"
+      - "homepage.href=https://unifi.${LOCAL_DOMAIN}"
+      - "homepage.weight=8"
+      - "homepage.widget.type=container"
+      - "homepage.widget.container=unifi-network-application"
+
+      # Let Watchtower update this container
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=unifi-network-application,service=networking,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"
+
+  unifi-db:
+    # Use a maintained line; 4.4 is widely used with UniFi.
+    # If your controller image bundles its own DB, you can remove this service.
+    image: mongo:3.6
+    container_name: unifi-db
+    restart: unless-stopped
+
+    env_file:
+      - ../../secrets/.env.runtime
+    environment: *unifi-environment
+
+    networks:
+      - backend
+
+    volumes:
+      - ./.data/mongo:/data/db
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --host localhost --eval 'db.runCommand({ ping: 1 }).ok' | grep 1 >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+    labels:
+      - "homepage.group=Networking"
+      - "homepage.name=Mongo (UniFi)"
+      - "homepage.icon=mongodb"
+      - "homepage.description=UniFi backing database"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=unifi-db,service=networking,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"

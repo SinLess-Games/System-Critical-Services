@@ -1,0 +1,69 @@
+---
+# https://gethomepage.dev/configs/services
+
+- Infrastructure:
+    - PVE-01:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: {{HOMEPAGE_VAR_PROXMOX_URL}}
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-01
+
+    - PVE-02:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: {{HOMEPAGE_VAR_PROXMOX_URL}}
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-02
+
+    - PVE-03:
+        href: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        icon: proxmox.svg
+        siteMonitor: {{HOMEPAGE_VAR_PROXMOX_URL}}
+        widget:
+          type: proxmox
+          url: {{HOMEPAGE_VAR_PROXMOX_URL}}
+          username: {{HOMEPAGE_VAR_PROXMOX_USER}}
+          password: {{HOMEPAGE_VAR_PROXMOX_PASSWORD}}
+          node: pve-03
+
+- Networking:
+    - Unifi-Network-Controller:
+        href: {{HOMEPAGE_VAR_UNIFI_URL}}
+        description: ""
+        icon: unifi.svg
+        siteMonitor: {{HOMEPAGE_VAR_UNIFI_URL}}
+        widget:
+          type: unifi
+          url: {{HOMEPAGE_VAR_UNIFI_URL}}
+          username: {{HOMEPAGE_VAR_UNIFI_USER}}
+          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
+
+- Cloudflare Tunnels:
+    - Unifi-Controller-Tunnel:
+        description: ""
+        icon: cloudflare.svg
+        widget:
+          type: cloudflared
+          accountid: {{HOMEPAGE_VAR_CLOUDFLARE_ACCOUNT_ID}}
+          tunnelid: {{HOMEPAGE_VAR_CLOUDFLARE_TUNNEL_ID}}
+          key: {{HOMEPAGE_VAR_CLOUDFLARE_API_TOKEN}}
+
+- Databases:
+    - InfluxDB:
+        href: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+        icon: influxdb.svg
+        siteMonitor: {{HOMEPAGE_VAR_INFLUXDB_URL}}
+
+    - MinIO:
+        href: {{HOMEPAGE_VAR_MINIO_URL}}
+        icon: minio.svg
+        siteMonitor: {{HOMEPAGE_VAR_MINIO_URL}}

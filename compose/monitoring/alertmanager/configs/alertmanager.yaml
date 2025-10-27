@@ -1,0 +1,37 @@
+global:
+  # How long to wait before marking an alert as resolved
+  resolve_timeout: 5m
+
+route:
+  # Default receiver for all alerts
+  receiver: discord-webhook
+
+  # Grouping & repeat timings
+  group_by: [alertname, job, instance]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  # Example sub-routes (optional): keep or extend as needed
+  routes:
+    # Route anything with a severity label (common pattern)
+    - receiver: discord-webhook
+      matchers:
+        - severity=~"critical|warning"
+      continue: false
+
+# Inhibit rules mute lower-priority alerts when a higher one fires
+inhibit_rules:
+  - source_matchers:
+      - severity="critical"
+    target_matchers:
+      - severity="warning"
+    equal: [alertname, job, instance]
+
+receivers:
+  - name: discord-webhook
+    webhook_configs:
+      - url: http://alertmanager-discord-notifier:9094
+        send_resolved: true
+        http_config:
+          follow_redirects: true

@@ -1,0 +1,56 @@
+version: "3.9"
+
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+  management:
+    external: true
+
+services:
+  ########################################
+  # Loki Service for Log Aggregation
+  ########################################
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    hostname: loki
+    restart: unless-stopped
+
+    # Keep host port so existing clients using 192.168.1.3 keep working.
+    # Prefer switching clients to http://loki:3100/loki/api/v1/push when convenient.
+    ports:
+      - "3100:3100"
+
+    command: [ "-config.file=/etc/loki/loki.yaml" ]
+
+    volumes:
+      - ./configs/loki.yaml:/etc/loki/loki.yaml:ro
+      - ./data:/loki
+
+    networks:
+      - backend
+      - frontend
+      - management
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3100/ready | grep -qw ready || exit 1"]
+      start_period: 20s
+      interval: 10s
+      timeout: 2s
+      retries: 12
+
+    security_opt:
+      - no-new-privileges:true
+
+    labels:
+      - "homepage.group=Monitoring"
+      - "homepage.name=Loki"
+      - "homepage.icon=loki"
+      - "homepage.description=Centralized logs"
+      - "homepage.href=http://loki:3100"   # internal link
+      - "com.centurylinklabs.watchtower.enable=true"

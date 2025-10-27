@@ -1,0 +1,108 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+  management:
+    external: true
+
+################################################################################
+# VOLUMES
+################################################################################
+volumes:
+  grafana-data:
+    driver: local
+
+################################################################################
+# SERVICES
+################################################################################
+services:
+  ########################################
+  # Grafana (no OnCall)
+  ########################################
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: grafana
+    restart: unless-stopped
+    user: "0"  # (optional) allows plugin installs; remove if not needed
+
+    networks:
+      - backend
+      - frontend
+      - management
+
+    # No host port: exposed externally via Traefik at https://grafana.${ROOT_DOMAIN}
+    # ports:
+    #   - "3001:3000"
+
+    env_file:
+      - ../../secrets/.env.runtime
+
+    environment:
+      # Core admin
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+
+      # Server / proxy awareness for Traefik + Cloudflared
+      GF_SERVER_DOMAIN: grafana.${ROOT_DOMAIN}
+      GF_SERVER_ROOT_URL: https://grafana.${ROOT_DOMAIN}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+
+      # Disable oncall + remove related toggles
+      GF_FEATURE_TOGGLES_ENABLE:
+
+      # Datasource helpers
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      DS_PROMETHEUS: http://prometheus:9090
+      GF_LOKI_URL: http://loki:3100
+      GF_TEMPO_URL: http://tempo:3200
+
+      # Optional: plugins (minus oncall)
+      GF_INSTALL_PLUGINS: grafana-pyroscope-app,grafana-github-datasource,netdatacloud-netdata-datasource,grafana-clock-panel,grafana-exploretraces-app,grafana-llm-app
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./dashboards:/etc/grafana/provisioning/dashboards
+      - ./configs/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./configs/grafana.yaml:/etc/grafana/grafana.yaml:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q 'ok' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+    labels:
+      # ---- Traefik (external via Cloudflared) ----
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+      # ---- Homepage ----
+      - "homepage.group=Monitoring"
+      - "homepage.name=Grafana"
+      - "homepage.icon=grafana"
+      - "homepage.description=Dashboards & observability UI"
+      - "homepage.href=https://grafana.${ROOT_DOMAIN}"
+      - "homepage.widget.type=container"
+      - "homepage.widget.container=grafana"
+      - "homepage.weight=1"
+
+      # ---- Watchtower ----
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=grafana,service=monitoring,env=prod"
+        mode: "non-blocking"
+
+    security_opt:
+      - no-new-privileges:true

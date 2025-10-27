@@ -1,0 +1,196 @@
+# =============================================================================
+# Top-level Orchestrator for System-Critical-Services
+# -----------------------------------------------------------------------------
+# This compose file *extends* the service definitions that live in your
+# per-stack compose files. Use profiles to start only what you need.
+#
+# Examples:
+#   # Everything
+#   docker compose --profile all up -d
+#
+#   # Only networking + observability
+#   docker compose --profile networking --profile observability up -d
+#
+#   # Just applications
+#   docker compose --profile applications up -d
+# =============================================================================
+
+name: system-critical-services
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+  management:
+    driver: bridge
+
+# -----------------------------------------------------------------------------
+# Common environment file (rendered by `task render`)
+# This is optional; most child files already read ../../secrets/.env.runtime.
+# Uncomment if you want a global env for services that don't already set one.
+# -----------------------------------------------------------------------------
+# env_file:
+#   - ../secrets/.env.runtime
+
+services:
+  # =========================
+  # Networking
+  # =========================
+  traefik:
+    profiles: ["networking", "all"]
+    extends:
+      file: ./networking/traefik/docker-compose.yaml
+      service: traefik
+
+  cloudflared:
+    profiles: ["networking", "all"]
+    extends:
+      file: ./networking/cloudflared/docker-compose.yaml
+      service: cloudflared
+
+  wireguard:
+    profiles: ["networking", "all"]
+    extends:
+      file: ./networking/wireguard/docker-compose.yaml
+      service: wireguard
+
+  unifi:
+    profiles: ["networking", "all"]
+    extends:
+      file: ./networking/unifi/docker-compose.yaml
+      service: unifi-network-application
+
+  unifi-db:
+    profiles: ["networking", "all"]
+    extends:
+      file: ./networking/unifi/docker-compose.yaml
+      service: unifi-db
+
+  # =========================
+  # Management (UI / Ops)
+  # =========================
+  homepage:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/homepage/docker-compose.yaml
+      service: homepage
+
+  watchtower:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/watchtower/docker-compose.yaml
+      service: watchtower
+
+  # GitLab stack
+  gitlab:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: gitlab
+  gitlab-postgres:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: postgres
+  gitlab-redis:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: redis
+  gitlab-rabbitmq:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: rabbitmq
+  docker-registry-proxy:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: docker-registry-proxy
+  gitlab-dind:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: dind
+  gitlab-runner:
+    profiles: ["management", "all"]
+    extends:
+      file: ./management/gitlab/docker-compose.yaml
+      service: gitlab-runner
+
+  # =========================
+  # Observability
+  # =========================
+  prometheus:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/prometheus/docker-compose.yaml
+      service: prometheus
+
+  alertmanager:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/alertmanager/docker-compose.yaml
+      service: alertmanager
+  alertmanager-discord-notifier:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/alertmanager/docker-compose.yaml
+      service: alertmanager-discord-notifier
+
+  loki:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/loki/docker-compose.yaml
+      service: loki
+
+  cadvisor:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/cadvisor/docker-compose.yaml
+      service: cadvisor
+
+  node-exporter:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/node-exporter/docker-compose.yaml
+      service: node-exporter
+
+  tempo:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/tempo/docker-compose.yaml
+      service: tempo
+  otelcol:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/tempo/docker-compose.yaml
+      service: otelcol
+
+  grafana:
+    profiles: ["observability", "all"]
+    extends:
+      file: ./monitoring/grafana/docker-compose.yaml
+      service: grafana
+
+  influxdb:
+    profiles: ["observability", "databases", "all"]
+    extends:
+      file: ./monitoring/influx-db/docker-compose.yaml
+      service: influxdb
+
+  # =========================
+  # Applications
+  # =========================
+  minio:
+    profiles: ["applications", "all"]
+    extends:
+      file: ./applications/minio/docker-compose.yaml
+      service: minio
+
+  sinlessgames:
+    profiles: ["applications", "all"]
+    extends:
+      file: ./applications/sinlessgamesllc/docker-compose.yaml
+      service: sinlessgames

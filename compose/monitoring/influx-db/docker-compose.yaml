@@ -1,0 +1,74 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+################################################################################
+# SERVICES
+################################################################################
+services:
+  ########################################
+  # InfluxDB v2.7 — Time Series Database
+  ########################################
+  influxdb:
+    image: influxdb:2.7.1-alpine
+    container_name: influxdb
+    hostname: influxdb
+    restart: unless-stopped
+
+    networks:
+      - frontend
+      - backend
+      - management
+
+    ports:
+      - "8086:8086" # Web UI & API (can later route via Traefik)
+
+    environment:
+      INFLUXD_HTTP_BIND_ADDRESS: ":8086"
+      INFLUXDB_ADMIN_USER: ${INFLUX_USER}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUX_PASSWORD}
+      INFLUXDB_ORG: ${INFLUX_ORG}
+      INFLUXDB_BUCKET: ${INFLUX_BUCKET}
+      INFLUXDB_TOKEN: ${INFLUX_TOKEN}
+      INFLUXDB_HTTP_LOG_ENABLED: "true"
+      INFLUXDB_QUERY_LOG_ENABLED: "false"
+
+    volumes:
+      - ./data:/var/lib/influxdb2
+      - ./configs:/etc/influxdb2:ro
+
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8086/health | grep -q 'pass' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    labels:
+      - "homepage.group=Databases"
+      - "homepage.name=InfluxDB"
+      - "homepage.icon=influxdb"
+      - "homepage.description=Time series database"
+      - "homepage.href=http://influxdb:8086"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=influxdb,service=monitoring,env=prod"
+        loki-retries: "3"
+        loki-max-backoff: "1s"
+        loki-timeout: "2s"
+        keep-file: "true"
+        mode: "non-blocking"

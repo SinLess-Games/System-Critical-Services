@@ -1,0 +1,89 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  frontend:
+    external: true
+  management:
+    external: true
+
+services:
+  ########################################
+  # Prometheus Service for Monitoring
+  ########################################
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+
+    # Attach to all three networks so Prometheus can scrape internal targets
+    networks:
+      - backend
+      - frontend
+      - management
+
+    # Load runtime env (LOCAL_DOMAIN, etc.) from sops-decrypted file
+    env_file:
+      - ../../secrets/.env.runtime
+
+    # Persist data and mount config
+    volumes:
+      - ./configs:/etc/prometheus:ro
+      - ./data:/prometheus
+
+    # Prometheus runtime flags
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+      # Uncomment if reverse proxy needs an explicit external URL:
+      # - --web.external-url=https://prometheus.${LOCAL_DOMAIN}
+
+    # No host port; access via Traefik at https://prometheus.${LOCAL_DOMAIN}
+    # ports:
+    #   - "9090:9090"
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+    security_opt:
+      - no-new-privileges:true
+
+    labels:
+      # ---- Traefik (internal) ----
+      - "traefik.enable=true"
+      - "traefik.http.routers.prom.rule=Host(`prometheus.${LOCAL_DOMAIN}`)"
+      - "traefik.http.routers.prom.entrypoints=websecure"
+      - "traefik.http.routers.prom.tls=true"
+      - "traefik.http.services.prom.loadbalancer.server.port=9090"
+
+      # ---- Homepage ----
+      - "homepage.group=Monitoring"
+      - "homepage.name=Prometheus"
+      - "homepage.icon=prometheus"
+      - "homepage.description=Metrics collection & alerting"
+      - "homepage.href=https://prometheus.${LOCAL_DOMAIN}"
+      - "homepage.widget.type=container"
+      - "homepage.widget.container=prometheus"
+      - "homepage.weight=10"
+
+      # ---- Watchtower ----
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=prometheus,service=monitoring,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"

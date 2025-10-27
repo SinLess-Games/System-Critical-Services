@@ -1,0 +1,67 @@
+################################################################################
+# NETWORKS
+################################################################################
+networks:
+  backend:
+    external: true
+  management:
+    external: true
+
+services:
+  ########################################
+  # cAdvisor — Container & node metrics
+  ########################################
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    restart: unless-stopped
+
+    networks:
+      - backend
+      - management
+    
+    # Required host mounts; mark read-only where safe
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+    privileged: true
+    devices:
+      - /dev/kmsg
+
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+    labels:
+      # Homepage
+      - "homepage.group=Monitoring"
+      - "homepage.name=cAdvisor"
+      - "homepage.icon=cadvisor"
+      - "homepage.description=Container & node metrics"
+      - "homepage.href=http://cadvisor:8080"
+      - "homepage.widget.type=container"
+      - "homepage.widget.container=cadvisor"
+
+      # Watchtower
+      - "com.centurylinklabs.watchtower.enable=true"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-external-labels: "container=cadvisor,service=monitoring,env=prod"
+        loki-retries: "2"
+        loki-max-backoff: "800ms"
+        loki-timeout: "1s"
+        keep-file: "true"
+        mode: "non-blocking"

@@ -1,0 +1,130 @@
+# =====================================================================
+# Traefik Reverse Proxy
+# =====================================================================
+# Routes requests between Cloudflared (frontend), backend services,
+# and the internal management network.
+# The dashboard is available at:
+#   https://traefik.local.sinlessgamesllc.com
+# =====================================================================
+version: "3.9"
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+  management:
+    external: true
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+
+    networks:
+      - frontend
+      - backend
+      - management
+
+    # Optional if using Cloudflared as ingress (no external host binding needed)
+    ports:
+      - "80:80"
+      - "443:443"
+
+    environment:
+      ROOT_DOMAIN: ${ROOT_DOMAIN}
+      LOCAL_DOMAIN: ${LOCAL_DOMAIN:-local.${ROOT_DOMAIN}}
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./dynamic:/etc/traefik/dynamic:ro
+      - traefik-certificates:/certs
+
+    command:
+      # --- Core / API / Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+
+      # --- Logging
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--accesslog.fields.defaultmode=keep"
+      - "--accesslog.fields.names.ClientUsername=drop"
+      - "--accesslog.fields.names.RequestAddr=drop"
+      - "--accesslog.fields.names.RequestHost=drop"
+      - "--accesslog.fields.names.RequestScheme=drop"
+      - "--accesslog.fields.names.DownstreamAddr=drop"
+      - "--accesslog.fields.names.DownstreamHost=drop"
+
+      # --- Providers
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+
+      # --- EntryPoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Optional internal entrypoint for VPN-only services/metrics scraping
+      - "--entrypoints.management.address=:8080"
+
+      # --- ACME / Certificates (optional if you terminate at Cloudflare)
+      - "--certificatesresolvers.le.acme.email=tpierce@sinlessgames.com"
+      - "--certificatesresolvers.le.acme.storage=/certs/acme.json"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+
+      # --- Backend TLS to services (only if you actually need to skip verify)
+      - "--serverstransport.insecureskipverify=true"
+
+      # ===============================
+      # Monitoring: Prometheus metrics
+      # ===============================
+      - "--metrics.prometheus=true"
+      # Add rich labels so Prometheus/Grafana dashboards are more useful
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addRoutersLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+      # Histogram buckets (seconds) for request durations
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+
+    labels:
+      # Global enable
+      - "traefik.enable=true"
+
+      # ===============================
+      # Traefik Dashboard (internal)
+      # ===============================
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${LOCAL_DOMAIN}`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.middlewares=dashboard-auth"
+
+      # Basic Auth Middleware (optional)
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$apr1$$7mJZC/ZC$$uG77ISdfvF1Nn0qC5Mchj."
+
+      # ===============================
+      # Security / Metadata
+      # ===============================
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "org.label-schema.name=traefik"
+      - "org.label-schema.description=Reverse Proxy and Router"
+      - "org.label-schema.schema-version=1.0"
+
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://192.168.1.3:3100/loki/api/v1/push"
+        loki-external-labels: "container=traefik,service=networking,env=prod"
+        mode: "non-blocking"
+
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  traefik-certificates:

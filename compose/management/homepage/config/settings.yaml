@@ -1,0 +1,51 @@
+---
+# https://gethomepage.dev/configs/settings
+title: SinLess Games Homepage
+showStats: true
+
+background:
+  image: https://img.freepik.com/free-photo/anime-moon-landscape_23-2151645903.jpg
+  saturate: 50
+  brightness: 50
+  opacity: 100
+
+cardBlur: sm
+groupsInitiallyCollapsed: true
+headerStyle: boxed
+
+layout:
+  Infrastructure:
+    icon: mdi-server
+    style: row
+    initiallyCollapsed: false
+    columns: 4
+
+  Monitoring:
+    icon: prometheus.svg
+    style: row
+    initiallyCollapsed: false
+    columns: 4
+
+  Networking:
+    icon: mdi-network
+    initiallyCollapsed: false
+
+  "Cloudflare Tunnels":
+    icon: mdi-cloud
+    initiallyCollapsed: false
+
+  Databases:
+    icon: mdi-database
+    initiallyCollapsed: false
+
+theme: dark
+color: slate
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+  provider: [google, duckduckgo, brave]
+
+hideVersion: true
